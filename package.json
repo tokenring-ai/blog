@@ -1,0 +1,15 @@
+{
+  "name": "@token-ring/blog",
+  "version": "0.1.0",
+  "description": "A blog abstraction for Token Ring",
+  "dependencies": {
+    "@token-ring/chat": "0.1.0",
+    "@token-ring/registry": "0.1.0"
+  },
+  "exports": {
+    ".": "./index.ts",
+    "./*": "./*.ts"
+  },
+  "license": "MIT",
+  "type": "module"
+}

@@ -1,0 +1,1 @@
+export * as blog from "./chatCommands/blog.ts";
