@@ -1,14 +1,16 @@
 import ChatService from "@token-ring/chat/ChatService";
 import type {Registry} from "@token-ring/registry";
+import {marked} from "marked";
 import {z} from "zod";
+import {UpdatePostData} from "../BlogResource.js";
 import BlogService from "../BlogService.ts";
 
 export const name = "blog/updatePost";
 
 export async function execute(
-  {title, content, tags}: {
+  {title, contentInMarkdown, tags}: {
     title?: string;
-    content?: string;
+    contentInMarkdown?: string;
     tags?: string[];
   },
   registry: Registry,
@@ -16,31 +18,32 @@ export async function execute(
   const chatService = registry.requireFirstServiceByType(ChatService);
   const blogService = registry.requireFirstServiceByType(BlogService);
 
-  const currentPost = blogService.getCurrentPost();
-  if (!currentPost) {
-    throw new Error(`No post currently selected`);
+  if (contentInMarkdown) {
+    // Strip the header from the post;
+    contentInMarkdown = contentInMarkdown.replace(/^\s*#.*/, "").trim();
   }
 
-  if (!title && !content && !tags) {
-    throw new Error("At least one of title, content, or tags must be provided");
-  }
+  const update: UpdatePostData = {};
+  if (title) update.title = title;
+  if (contentInMarkdown) update.content = marked(contentInMarkdown, { async: false});
+  if (tags) update.tags = tags;
 
-  chatService.infoLine(`[${name}] Updating post "${currentPost.title}"`);
 
-  const updatedPost = await blogService.updatePost({title, content, tags});
+  const updatedPost = await blogService.updatePost(update);
 
-  return {
-    success: true,
-    post: updatedPost,
-    message: `Post "${updatedPost.title}" updated successfully`,
-    changes: {title: !!title, content: !!content, tags: !!tags},
-  };
+  chatService.infoLine(`[${name}] Post updated with ID: ${updatedPost.id}`);
+  return updatedPost;
 }
 
 export const description = "Update the currently selected blog post";
 
 export const inputSchema = z.object({
   title: z.string().describe("New title for the post").optional(),
-  content: z.string().describe("New content for the post").optional(),
+  contentInMarkdown: z
+    .string()
+    .describe(
+      "The content of the post in Markdown format. The title of the post goes in the title tag, NOT inside the content",
+    )
+    .optional(),
   tags: z.array(z.string()).describe("New tags for the post").optional(),
 });

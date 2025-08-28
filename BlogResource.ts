@@ -1,34 +1,21 @@
 export interface BlogPost {
   id: string;
   title: string;
-  content: string;
-  status: 'draft' | 'published';
+  content?: string;
+  status: 'draft' | 'published' | 'scheduled';
   tags?: string[];
-  created_at: string;
-  updated_at: string;
+  created_at: Date;
+  updated_at: Date;
+  published_at?: Date;
+  feature_image?: string;
   url?: string;
 }
 
-export interface CreatePostData {
-  title: string;
-  content: string;
-  tags?: string[];
-  published?: boolean;
-}
+export type CreatePostData = Omit<BlogPost, 'id' | 'created_at' | 'updated_at' | 'published_at'>;
 
-export interface UpdatePostData {
-  title?: string;
-  content?: string;
-  tags?: string[];
-}
+export type UpdatePostData = Partial<Omit<BlogPost, 'id' | 'created_at' | 'updated_at'>>;
 
-export interface PublishResult {
-  success: boolean;
-  post?: BlogPost;
-  message?: string;
-}
-
-export interface BlogServiceOptions {
+export interface BlogResourceOptions {
   imageGenerationModel: string;
   cdn: string;
 }
@@ -37,7 +24,7 @@ export default class BlogResource {
   imageGenerationModel: string;
   cdnName: string;
 
-  constructor({imageGenerationModel, cdn}: BlogServiceOptions) {
+  constructor({imageGenerationModel, cdn}: BlogResourceOptions) {
     this.imageGenerationModel = imageGenerationModel;
     this.cdnName = cdn;
   }
@@ -62,7 +49,7 @@ export default class BlogResource {
     throw new Error("Method 'getCurrentPost' must be implemented by subclasses");
   }
 
-  setCurrentPost(_post: BlogPost | null): void {
-    throw new Error("Method 'setCurrentPost' must be implemented by subclasses");
+  async clearCurrentPost(): Promise<void> {
+    throw new Error("Method 'clearCurrentPost' must be implemented by subclasses");
   }
 }

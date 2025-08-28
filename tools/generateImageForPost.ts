@@ -11,7 +11,7 @@ export const name = "blog/generateImageForPost";
 
 export async function execute(
   {prompt, aspectRatio = "square"}: {
-    prompt: string;
+    prompt?: string;
     aspectRatio?: "square" | "tall" | "wide";
   },
   registry: Registry,
@@ -20,6 +20,9 @@ export async function execute(
   const blogService = registry.requireFirstServiceByType(BlogService);
   const cdnService = registry.requireFirstServiceByType(CDNService);
   const modelRegistry = registry.requireFirstServiceByType(ModelRegistry);
+  if (!prompt) {
+    throw new Error("Prompt is required");
+  }
 
   const activeBlogName = blogService.getActiveBlog();
   if (!activeBlogName) {
@@ -61,10 +64,15 @@ export async function execute(
 
   chatService.infoLine(`[${name}] Image uploaded: ${uploadResult.url}`);
 
+  // Update the current post with the featured image
+  await blogService.updatePost({
+    feature_image: uploadResult.url
+  });
+
   return {
     success: true,
     imageUrl: uploadResult.url,
-    message: `Image generated for post "${currentPost.title}"`,
+    message: `Image generated and set as featured image for post "${currentPost.title}"`,
   };
 }
 

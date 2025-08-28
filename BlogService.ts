@@ -89,7 +89,7 @@ export default class BlogService extends Service {
     return activeBlog.getCurrentPost();
   }
 
-  setCurrentPost(post: BlogPost | null): void {
+  async selectPostById(id: string ): Promise<BlogPost> {
     const blogName = this.getActiveBlog();
     if (!blogName) {
       throw new Error("No active blog selected. Use /blog blog select first.");
@@ -98,6 +98,18 @@ export default class BlogService extends Service {
     if (!activeBlog) {
       throw new Error("No active blog selected. Use /blog blog select first.");
     }
-    return activeBlog.setCurrentPost(post);
+    return await activeBlog.selectPostById(id);
+  }
+
+  async clearCurrentPost(): Promise<void> {
+    const blogName = this.getActiveBlog();
+    if (!blogName) {
+      throw new Error("No active blog selected. Use /blog blog select first.");
+    }
+    const activeBlog = this.getBlogByName(blogName);
+    if (!activeBlog) {
+      throw new Error("No active blog selected. Use /blog blog select first.");
+    }
+    return await activeBlog.clearCurrentPost();
   }
 }

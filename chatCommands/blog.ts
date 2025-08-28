@@ -117,12 +117,12 @@ async function selectPost(
 
     if (selectedValue) {
       if (selectedValue === "none") {
-        blogService.setCurrentPost(null);
+        blogService.clearCurrentPost();
         chatService.systemLine("Post selection cleared.");
       } else {
         const selectedPost = formattedPosts.find(post => post.value === selectedValue);
         if (selectedPost?.data) {
-          blogService.setCurrentPost(selectedPost.data);
+          blogService.selectPostById(selectedPost.data.id);
           chatService.systemLine(`Selected post: "${selectedPost.data.title}"`);
         }
       }
@@ -210,7 +210,7 @@ export async function execute(remainder: string, registry: Registry): Promise<vo
           chatService.systemLine("No active blog selected. Use /blog blog select first.");
           return;
         }
-        blogService.setCurrentPost(null);
+        blogService.clearCurrentPost();
         chatService.systemLine("New post started. No post is currently selected. Use tools to create and publish.");
         break;
       default:

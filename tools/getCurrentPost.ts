@@ -9,21 +9,8 @@ export async function execute(
   {},
   registry: Registry,
 ) {
-  const chatService = registry.requireFirstServiceByType(ChatService);
   const blogService = registry.requireFirstServiceByType(BlogService);
-  const blogName = blogService.getActiveBlog();
-  if (!blogName) {
-    throw new Error("No active blog selected. Use /blog blog select first.");
-  }
-  const activeBlog = blogService.getBlogByName(blogName);
-  if (!activeBlog) {
-    throw new Error("No active blog selected. Use /blog blog select first.");
-  }
-
-
-  chatService.infoLine(`[${name}] Getting current post from ${blogName}`);
-
-  const currentPost = activeBlog.getCurrentPost();
+  const currentPost = blogService.getCurrentPost();
 
   if (!currentPost) {
     return {
