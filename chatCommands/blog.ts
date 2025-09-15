@@ -1,6 +1,4 @@
-import {HumanInterfaceService} from "@token-ring/chat";
-import ChatService from "@token-ring/chat/ChatService";
-import {Registry} from "@token-ring/registry";
+import Agent from "@tokenring-ai/agent/Agent";
 import BlogService from "../BlogService.ts";
 import type {BlogPost} from "../BlogResource.ts";
 
@@ -30,23 +28,22 @@ export function help(): Array<string> {
 
 async function selectBlog(
   blogService: BlogService,
-  chatService: ChatService,
-  humanInterfaceService: HumanInterfaceService
+  agent: Agent
 ): Promise<void> {
   const availableBlogs = blogService.getAvailableBlogs();
   
   if (availableBlogs.length === 0) {
-    chatService.systemLine("No blog services are registered.");
+    agent.infoLine("No blog services are registered.");
     return;
   }
 
   if (availableBlogs.length === 1) {
-    blogService.setActiveBlog(availableBlogs[0]);
-    chatService.systemLine(`Active blog set to: ${availableBlogs[0]}`);
+    blogService.setActiveBlogName(availableBlogs[0]);
+    agent.infoLine(`Active blog set to: ${availableBlogs[0]}`);
     return;
   }
 
-  const currentActive = blogService.getActiveBlog();
+  const currentActive = blogService.getActiveBlogName();
   const formattedBlogs = availableBlogs.map(name => ({
     name: `${name}${name === currentActive ? " (current)" : ""}`,
     value: name,
@@ -57,35 +54,35 @@ async function selectBlog(
     children: formattedBlogs,
   };
 
-  const selectedValue = await humanInterfaceService.askForSingleTreeSelection({
+  const selectedValue = await agent.askHuman({
+    type: "askForSingleTreeSelection",
     message: "Select an active blog service",
     tree: treeData
   });
 
   if (selectedValue) {
-    blogService.setActiveBlog(selectedValue);
-    chatService.systemLine(`Active blog set to: ${selectedValue}`);
+    blogService.setActiveBlogName(selectedValue);
+    agent.infoLine(`Active blog set to: ${selectedValue}`);
   } else {
-    chatService.systemLine("Blog selection cancelled.");
+    agent.infoLine("Blog selection cancelled.");
   }
 }
 
 async function selectPost(
   blogService: BlogService,
-  chatService: ChatService,
-  humanInterfaceService: HumanInterfaceService
+  agent: Agent
 ): Promise<void> {
-  const activeBlog = blogService.getActiveBlog();
+  const activeBlog = blogService.getActiveBlogName();
   if (!activeBlog) {
-    chatService.systemLine("No active blog selected. Use /blog blog select first.");
+    agent.infoLine("No active blog selected. Use /blog blog select first.");
     return;
   }
 
   try {
-    const posts = await blogService.getAllPosts();
+    const posts = await blogService.getAllPosts(agent);
 
     if (!posts || posts.length === 0) {
-      chatService.systemLine(`No posts found on ${activeBlog}.`);
+      agent.infoLine(`No posts found on ${activeBlog}.`);
       return;
     }
 
@@ -110,44 +107,45 @@ async function selectPost(
       children: formattedPosts,
     };
 
-    const selectedValue = await humanInterfaceService.askForSingleTreeSelection({
+    const selectedValue = await agent.askHuman({
+      type: "askForSingleTreeSelection",
       message: `Select a post from ${activeBlog} - Choose a post to work with or select 'Clear selection' to start fresh`,
       tree: treeData
     });
 
     if (selectedValue) {
       if (selectedValue === "none") {
-        blogService.clearCurrentPost();
-        chatService.systemLine("Post selection cleared.");
+        await blogService.clearCurrentPost(agent);
+        agent.infoLine("Post selection cleared.");
       } else {
         const selectedPost = formattedPosts.find(post => post.value === selectedValue);
         if (selectedPost?.data) {
-          blogService.selectPostById(selectedPost.data.id);
-          chatService.systemLine(`Selected post: "${selectedPost.data.title}"`);
+          await blogService.selectPostById(selectedPost.data.id,agent);
+          agent.infoLine(`Selected post: "${selectedPost.data.title}"`);
         }
       }
     } else {
-      chatService.systemLine("Post selection cancelled.");
+      agent.infoLine("Post selection cancelled.");
     }
   } catch (error) {
-    chatService.errorLine("Error during post selection:", error);
+    agent.errorLine("Error during post selection:", error as Error);
   }
 }
 
 async function postInfo(
   blogService: BlogService,
-  chatService: ChatService,
+  agent: Agent
 ): Promise<void> {
-  const activeBlog = blogService.getActiveBlog();
+  const activeBlog = blogService.getActiveBlogName();
   if (!activeBlog) {
-    chatService.systemLine("No active blog selected. Use /blog blog select first.");
+    agent.infoLine("No active blog selected. Use /blog blog select first.");
     return;
   }
 
-  const currentPost = blogService.getCurrentPost();
+  const currentPost = blogService.getCurrentPost(agent);
   if (!currentPost) {
-    chatService.systemLine("No post is currently selected.");
-    chatService.systemLine("Use /blog post select to choose a post.");
+    agent.infoLine("No post is currently selected.");
+    agent.infoLine("Use /blog post select to choose a post.");
     return;
   }
 
@@ -178,45 +176,43 @@ async function postInfo(
     infoLines.push(`URL: ${currentPost.url}`);
   }
 
-  chatService.systemLine(infoLines.join("\n"));
+  agent.infoLine(infoLines.join("\n"));
 }
 
-export async function execute(remainder: string, registry: Registry): Promise<void> {
-  const chatService = registry.requireFirstServiceByType(ChatService);
-  const humanInterfaceService = registry.requireFirstServiceByType(HumanInterfaceService);
-  const blogService = registry.requireFirstServiceByType(BlogService);
+export async function execute(remainder: string, agent: Agent): Promise<void> {
+  const blogService = agent.requireFirstServiceByType(BlogService);
 
   const [action, subaction] = remainder.split(/\s+/);
 
   if (action === "blog") {
     switch (subaction) {
       case "select":
-        await selectBlog(blogService, chatService, humanInterfaceService);
+        await selectBlog(blogService, agent);
         break;
       default:
-        chatService.systemLine("Unknown subaction. Available subactions: select");
+        agent.infoLine("Unknown subaction. Available subactions: select");
     }
   } else if (action === "post") {
     switch (subaction) {
       case "select":
-        await selectPost(blogService, chatService, humanInterfaceService);
+        await selectPost(blogService, agent);
         break;
       case "info":
-        await postInfo(blogService, chatService);
+        await postInfo(blogService, agent);
         break;
       case "new":
-        const activeBlog = blogService.getActiveBlog();
+        const activeBlog = blogService.getActiveBlogName();
         if (!activeBlog) {
-          chatService.systemLine("No active blog selected. Use /blog blog select first.");
+          agent.infoLine("No active blog selected. Use /blog blog select first.");
           return;
         }
-        blogService.clearCurrentPost();
-        chatService.systemLine("New post started. No post is currently selected. Use tools to create and publish.");
+        await blogService.clearCurrentPost(agent);
+        agent.infoLine("New post started. No post is currently selected. Use tools to create and publish.");
         break;
       default:
-        chatService.systemLine("Unknown subaction. Available subactions: select, info, new");
+        agent.infoLine("Unknown subaction. Available subactions: select, info, new");
     }
   } else {
-    chatService.systemLine("Unknown action. Available actions: blog [select], post [select|info|new]");
+    agent.infoLine("Unknown action. Available actions: blog [select], post [select|info|new]");
   }
 }

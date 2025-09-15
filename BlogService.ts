@@ -1,115 +1,55 @@
-import {type Registry, Service} from "@token-ring/registry";
+import Agent from "@tokenring-ai/agent/Agent";
+import {TokenRingService} from "@tokenring-ai/agent/types";
+import KeyedRegistryWithSingleSelection from "@tokenring-ai/utility/KeyedRegistryWithSingleSelection";
 import BlogResource, {type BlogPost, type CreatePostData, type UpdatePostData} from "./BlogResource.js";
 
-export default class BlogService extends Service {
+export default class BlogService implements TokenRingService {
   name = "Blog";
   description = "Abstract interface for blog operations";
-  protected registry!: Registry;
 
-  private resources: Record<string, BlogResource> = {};
-  private activeBlog: string | null = null;
+  private blogResourceRegistry = new KeyedRegistryWithSingleSelection<BlogResource>();
 
-  registerBlog(name: string, resource: BlogResource) {
-    this.resources[name] = resource;
-    if (!this.activeBlog) {
-      this.activeBlog = name;
-    }
-  }
+  registerBlog = this.blogResourceRegistry.register;
+  getActiveBlogName = this.blogResourceRegistry.getActiveItemName;
+  getActiveBlog = this.blogResourceRegistry.getActiveItem;
+  setActiveBlogName = this.blogResourceRegistry.setEnabledItem;
+  getAvailableBlogs = this.blogResourceRegistry.getAllItemNames;
 
-  getActiveBlog() : string | null {
-    return this.activeBlog;
-  }
-
-  setActiveBlog(name: string): void {
-    if (!this.resources[name]) {
-      throw new Error(`Blog ${name} not found`);
-    }
-    this.activeBlog = name;
-  }
-
-  getAvailableBlogs(): string[] {
-    return Object.keys(this.resources);
-  }
-
-  getBlogByName(blogName: string): BlogResource {
-    if (this.resources[blogName]) {
-      return this.resources[blogName];
-    }
-    throw new Error(
-      `Blog ${blogName} not found. Available blogs: ${Object.keys(this.resources).join(", ")}`
-    );
-  }
-
-  async getAllPosts(): Promise<BlogPost[]> {
-    const blogName = this.getActiveBlog();
+  private getActiveBlogResource(): BlogResource {
+    const blogName = this.getActiveBlogName();
     if (!blogName) {
       throw new Error("No active blog selected. Use /blog blog select first.");
     }
-    const activeBlog = this.getBlogByName(blogName);
-    if (!activeBlog) {
-      throw new Error("No active blog selected. Use /blog blog select first.");
-    }
-
-    return activeBlog.getAllPosts();
+    return this.blogResourceRegistry.getActiveItem();
   }
 
-  async createPost(data: CreatePostData): Promise<BlogPost> {
-    const blogName = this.getActiveBlog();
-    if (!blogName) {
-      throw new Error("No active blog selected. Use /blog blog select first.");
-    }
-    const activeBlog = this.getBlogByName(blogName);
-    if (!activeBlog) {
-      throw new Error("No active blog selected. Use /blog blog select first.");
-    }
-    return activeBlog.createPost(data);
+  async getAllPosts(agent: Agent): Promise<BlogPost[]> {
+    const activeBlog = this.getActiveBlogResource();
+    return activeBlog.getAllPosts(agent);
   }
 
-  async updatePost(data: UpdatePostData): Promise<BlogPost> {
-    const blogName = this.getActiveBlog();
-    if (!blogName) {
-      throw new Error("No active blog selected. Use /blog blog select first.");
-    }
-    const activeBlog = this.getBlogByName(blogName);
-    if (!activeBlog) {
-      throw new Error("No active blog selected. Use /blog blog select first.");
-    }
-    return activeBlog.updatePost(data);
+  async createPost(data: CreatePostData, agent: Agent): Promise<BlogPost> {
+    const activeBlog = this.getActiveBlogResource();
+    return activeBlog.createPost(data,agent);
   }
 
-  getCurrentPost(): BlogPost | null {
-    const blogName = this.getActiveBlog();
-    if (!blogName) {
-      throw new Error("No active blog selected. Use /blog blog select first.");
-    }
-    const activeBlog = this.getBlogByName(blogName);
-    if (!activeBlog) {
-      throw new Error("No active blog selected. Use /blog blog select first.");
-    }
-    return activeBlog.getCurrentPost();
+  async updatePost(data: UpdatePostData, agent: Agent): Promise<BlogPost> {
+    const activeBlog = this.getActiveBlogResource();
+    return activeBlog.updatePost(data,agent);
   }
 
-  async selectPostById(id: string ): Promise<BlogPost> {
-    const blogName = this.getActiveBlog();
-    if (!blogName) {
-      throw new Error("No active blog selected. Use /blog blog select first.");
-    }
-    const activeBlog = this.getBlogByName(blogName);
-    if (!activeBlog) {
-      throw new Error("No active blog selected. Use /blog blog select first.");
-    }
-    return await activeBlog.selectPostById(id);
+  getCurrentPost(agent: Agent): BlogPost | null {
+    const activeBlog = this.getActiveBlogResource();
+    return activeBlog.getCurrentPost(agent);
   }
 
-  async clearCurrentPost(): Promise<void> {
-    const blogName = this.getActiveBlog();
-    if (!blogName) {
-      throw new Error("No active blog selected. Use /blog blog select first.");
-    }
-    const activeBlog = this.getBlogByName(blogName);
-    if (!activeBlog) {
-      throw new Error("No active blog selected. Use /blog blog select first.");
-    }
-    return await activeBlog.clearCurrentPost();
+  async selectPostById(id: string,agent: Agent): Promise<BlogPost> {
+    const activeBlog = this.getActiveBlogResource();
+    return await activeBlog.selectPostById(id,agent);
+  }
+
+  async clearCurrentPost(agent: Agent): Promise<void> {
+    const activeBlog = this.getActiveBlogResource();
+    return await activeBlog.clearCurrentPost(agent);
   }
 }

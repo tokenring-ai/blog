@@ -1,5 +1,4 @@
-import ChatService from "@token-ring/chat/ChatService";
-import type {Registry} from "@token-ring/registry";
+import Agent from "@tokenring-ai/agent/Agent";
 import {z} from "zod";
 import BlogService from "../BlogService.ts";
 
@@ -7,10 +6,10 @@ export const name = "blog/getCurrentPost";
 
 export async function execute(
   {},
-  registry: Registry,
+  agent: Agent,
 ) {
-  const blogService = registry.requireFirstServiceByType(BlogService);
-  const currentPost = blogService.getCurrentPost();
+  const blogService = agent.requireFirstServiceByType(BlogService);
+  const currentPost = blogService.getCurrentPost(agent);
 
   if (!currentPost) {
     return {

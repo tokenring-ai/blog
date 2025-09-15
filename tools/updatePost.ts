@@ -1,5 +1,4 @@
-import ChatService from "@token-ring/chat/ChatService";
-import type {Registry} from "@token-ring/registry";
+import Agent from "@tokenring-ai/agent/Agent";
 import {marked} from "marked";
 import {z} from "zod";
 import {UpdatePostData} from "../BlogResource.js";
@@ -13,10 +12,9 @@ export async function execute(
     contentInMarkdown?: string;
     tags?: string[];
   },
-  registry: Registry,
+  agent: Agent,
 ) {
-  const chatService = registry.requireFirstServiceByType(ChatService);
-  const blogService = registry.requireFirstServiceByType(BlogService);
+  const blogService = agent.requireFirstServiceByType(BlogService);
 
   if (contentInMarkdown) {
     // Strip the header from the post;
@@ -29,9 +27,9 @@ export async function execute(
   if (tags) update.tags = tags;
 
 
-  const updatedPost = await blogService.updatePost(update);
+  const updatedPost = await blogService.updatePost(update,agent);
 
-  chatService.infoLine(`[${name}] Post updated with ID: ${updatedPost.id}`);
+  agent.infoLine(`[${name}] Post updated with ID: ${updatedPost.id}`);
   return updatedPost;
 }
 

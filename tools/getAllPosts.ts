@@ -1,5 +1,4 @@
-import ChatService from "@token-ring/chat/ChatService";
-import type {Registry} from "@token-ring/registry";
+import Agent from "@tokenring-ai/agent/Agent";
 import {z} from "zod";
 import BlogService from "../BlogService.ts";
 
@@ -11,11 +10,11 @@ export async function execute(
     tag?: string;
     limit?: number;
   },
-  registry: Registry,
+  agent: Agent,
 ) {
-  const blogService = registry.requireFirstServiceByType(BlogService);
+  const blogService = agent.requireFirstServiceByType(BlogService);
 
-  let posts = await blogService.getAllPosts();
+  let posts = await blogService.getAllPosts(agent);
 
   if (status !== "all") {
     posts = posts.filter(post => post.status === status);
@@ -30,7 +29,7 @@ export async function execute(
   }
 
   const limitedPosts = posts.slice(0, limit);
-  const currentPost = blogService.getCurrentPost();
+  const currentPost = blogService.getCurrentPost(agent);
 
   return {
     success: true,

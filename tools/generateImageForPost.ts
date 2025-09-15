@@ -1,7 +1,6 @@
-import ModelRegistry from "@token-ring/ai-client/ModelRegistry";
-import CDNService from "@token-ring/cdn/CDNService";
-import ChatService from "@token-ring/chat/ChatService";
-import type {Registry} from "@token-ring/registry";
+import ModelRegistry from "@tokenring-ai/ai-client/ModelRegistry";
+import CDNService from "@tokenring-ai/cdn/CDNService";
+import Agent from "@tokenring-ai/agent/Agent";
 import {Buffer} from "node:buffer";
 import {v4 as uuid} from "uuid";
 import {z} from "zod";
@@ -14,32 +13,27 @@ export async function execute(
     prompt?: string;
     aspectRatio?: "square" | "tall" | "wide";
   },
-  registry: Registry,
+  agent: Agent,
 ) {
-  const chatService = registry.requireFirstServiceByType(ChatService);
-  const blogService = registry.requireFirstServiceByType(BlogService);
-  const cdnService = registry.requireFirstServiceByType(CDNService);
-  const modelRegistry = registry.requireFirstServiceByType(ModelRegistry);
+  const blogService = agent.requireFirstServiceByType(BlogService);
+  const cdnService = agent.requireFirstServiceByType(CDNService);
+  const modelRegistry = agent.requireFirstServiceByType(ModelRegistry);
   if (!prompt) {
     throw new Error("Prompt is required");
   }
 
-  const activeBlogName = blogService.getActiveBlog();
-  if (!activeBlogName) {
-    throw new Error("No active blog selected. Use /blog blog select first.");
-  }
-
-  const activeBlog = blogService.getBlogByName(activeBlogName);
+  const activeBlog = blogService.getActiveBlog();
   if (!activeBlog) {
     throw new Error("No active blog selected. Use /blog blog select first.");
   }
 
-  const currentPost = activeBlog.getCurrentPost();
+
+  const currentPost = activeBlog.getCurrentPost(agent);
   if (!currentPost) {
-    throw new Error(`No post currently selected on ${activeBlogName}`);
+    throw new Error(`No post currently selected on ${blogService.getActiveBlogName()}`);
   }
 
-  chatService.infoLine(`[${name}] Generating image for post "${currentPost.title}"`);
+  agent.infoLine(`[${name}] Generating image for post "${currentPost.title}"`);
 
   const imageClient = await modelRegistry.imageGeneration.getFirstOnlineClient(activeBlog.imageGenerationModel);
 
@@ -51,7 +45,7 @@ export async function execute(
     default: size = "1024x1024";
   }
 
-  const [imageResult] = await imageClient.generateImage({prompt, size, n: 1}, registry);
+  const [imageResult] = await imageClient.generateImage({prompt, size, n: 1}, agent);
 
   const extension = imageResult.mediaType.split("/")[1];
   const filename = `${uuid()}.${extension}`;
@@ -62,12 +56,12 @@ export async function execute(
     contentType: imageResult.mediaType,
   });
 
-  chatService.infoLine(`[${name}] Image uploaded: ${uploadResult.url}`);
+  agent.infoLine(`[${name}] Image uploaded: ${uploadResult.url}`);
 
   // Update the current post with the featured image
   await blogService.updatePost({
     feature_image: uploadResult.url
-  });
+  },agent);
 
   return {
     success: true,

@@ -1,10 +1,9 @@
 {
-  "name": "@token-ring/blog",
+  "name": "@tokenring-ai/blog",
   "version": "0.1.0",
   "description": "A blog abstraction for Token Ring",
   "dependencies": {
-    "@token-ring/chat": "0.1.0",
-    "@token-ring/registry": "0.1.0"
+    "@tokenring-ai/agent": "0.1.0"
   },
   "exports": {
     ".": "./index.ts",

@@ -1,3 +1,5 @@
+import {Agent} from "@tokenring-ai/agent";
+
 export interface BlogPost {
   id: string;
   title: string;
@@ -29,27 +31,28 @@ export default class BlogResource {
     this.cdnName = cdn;
   }
 
-  async getAllPosts(): Promise<BlogPost[]> {
+
+  async getAllPosts(agent: Agent): Promise<BlogPost[]> {
     throw new Error("Method 'getAllPosts' must be implemented by subclasses");
   }
 
-  async createPost(_data: CreatePostData): Promise<BlogPost> {
+  async createPost(_data: CreatePostData,agent: Agent): Promise<BlogPost> {
     throw new Error("Method 'createPost' must be implemented by subclasses");
   }
 
-  async updatePost(_data: UpdatePostData): Promise<BlogPost> {
+  async updatePost(_data: UpdatePostData,agent: Agent): Promise<BlogPost> {
     throw new Error("Method 'updatePost' must be implemented by subclasses");
   }
 
-  async selectPostById(_id: string): Promise<BlogPost> {
+  async selectPostById(_id: string,agent: Agent): Promise<BlogPost> {
     throw new Error("Method 'selectPostById' must be implemented by subclasses");
   }
 
-  getCurrentPost(): BlogPost | null {
+  getCurrentPost(agent: Agent): BlogPost | null {
     throw new Error("Method 'getCurrentPost' must be implemented by subclasses");
   }
 
-  async clearCurrentPost(): Promise<void> {
+  async clearCurrentPost(agent: Agent): Promise<void> {
     throw new Error("Method 'clearCurrentPost' must be implemented by subclasses");
   }
 }
