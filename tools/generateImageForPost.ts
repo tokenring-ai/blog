@@ -1,10 +1,11 @@
+import Agent from "@tokenring-ai/agent/Agent";
 import ModelRegistry from "@tokenring-ai/ai-client/ModelRegistry";
 import CDNService from "@tokenring-ai/cdn/CDNService";
-import Agent from "@tokenring-ai/agent/Agent";
 import {Buffer} from "node:buffer";
 import {v4 as uuid} from "uuid";
 import {z} from "zod";
 import BlogService from "../BlogService.ts";
+import {BlogState} from "../state/BlogState.js";
 
 export const name = "blog/generateImageForPost";
 
@@ -15,22 +16,18 @@ export async function execute(
   },
   agent: Agent,
 ) {
-  const blogService = agent.requireFirstServiceByType(BlogService);
-  const cdnService = agent.requireFirstServiceByType(CDNService);
-  const modelRegistry = agent.requireFirstServiceByType(ModelRegistry);
+  const blogService = agent.requireServiceByType(BlogService);
+  const cdnService = agent.requireServiceByType(CDNService);
+  const modelRegistry = agent.requireServiceByType(ModelRegistry);
   if (!prompt) {
     throw new Error("Prompt is required");
   }
 
-  const activeBlog = blogService.getActiveBlog();
-  if (!activeBlog) {
-    throw new Error("No active blog selected. Use /blog blog select first.");
-  }
-
+  const activeBlog = blogService.requireActiveBlogResource(agent);
 
   const currentPost = activeBlog.getCurrentPost(agent);
   if (!currentPost) {
-    throw new Error(`No post currently selected on ${blogService.getActiveBlogName()}`);
+    throw new Error(`No post currently selected`);
   }
 
   agent.infoLine(`[${name}] Generating image for post "${currentPost.title}"`);
@@ -50,6 +47,7 @@ export async function execute(
   const extension = imageResult.mediaType.split("/")[1];
   const filename = `${uuid()}.${extension}`;
   const imageBuffer = Buffer.from(imageResult.uint8Array);
+
 
   const uploadResult = await cdnService.upload(activeBlog.cdnName, imageBuffer, {
     filename,

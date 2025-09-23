@@ -8,7 +8,7 @@ export async function execute(
   {},
   agent: Agent,
 ) {
-  const blogService = agent.requireFirstServiceByType(BlogService);
+  const blogService = agent.requireServiceByType(BlogService);
   const currentPost = blogService.getCurrentPost(agent);
 
   if (!currentPost) {

@@ -20,7 +20,7 @@ export async function execute(
     throw new Error("Content is required");
   }
 
-  const blogService = agent.requireFirstServiceByType(BlogService);
+  const blogService = agent.requireServiceByType(BlogService);
 
   // Strip the header from the post;
   contentInMarkdown = contentInMarkdown.replace(/^\s*#.*/, "").trim();

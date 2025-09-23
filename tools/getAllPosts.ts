@@ -12,7 +12,7 @@ export async function execute(
   },
   agent: Agent,
 ) {
-  const blogService = agent.requireFirstServiceByType(BlogService);
+  const blogService = agent.requireServiceByType(BlogService);
 
   let posts = await blogService.getAllPosts(agent);
 

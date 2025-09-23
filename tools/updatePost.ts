@@ -14,7 +14,7 @@ export async function execute(
   },
   agent: Agent,
 ) {
-  const blogService = agent.requireFirstServiceByType(BlogService);
+  const blogService = agent.requireServiceByType(BlogService);
 
   if (contentInMarkdown) {
     // Strip the header from the post;

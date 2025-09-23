@@ -4,10 +4,11 @@ import packageJSON from './package.json' with {type: 'json'};
 export const packageInfo: TokenRingPackage = {
   name: packageJSON.name,
   version: packageJSON.version,
-  description: packageJSON.description
+  description: packageJSON.description,
+  tools,
+  chatCommands,
 };
 
 export {default as BlogService} from "./BlogService.ts";
-export {default as BlogResource} from "./BlogResource.ts";
-export * as tools from "./tools.ts";
-export * as chatCommands from "./chatCommands.ts";
+import * as tools from "./tools.ts";
+import * as chatCommands from "./chatCommands.ts";

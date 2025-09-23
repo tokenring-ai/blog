@@ -18,41 +18,28 @@ export type CreatePostData = Omit<BlogPost, 'id' | 'created_at' | 'updated_at' |
 export type UpdatePostData = Partial<Omit<BlogPost, 'id' | 'created_at' | 'updated_at'>>;
 
 export interface BlogResourceOptions {
+  description: string;
   imageGenerationModel: string;
   cdn: string;
 }
 
-export default class BlogResource {
+export interface BlogResource {
+  description: string;
+  
   imageGenerationModel: string;
   cdnName: string;
 
-  constructor({imageGenerationModel, cdn}: BlogResourceOptions) {
-    this.imageGenerationModel = imageGenerationModel;
-    this.cdnName = cdn;
-  }
+  attach(agent: Agent): Promise<void>;
 
+  getAllPosts(agent: Agent): Promise<BlogPost[]>;
 
-  async getAllPosts(agent: Agent): Promise<BlogPost[]> {
-    throw new Error("Method 'getAllPosts' must be implemented by subclasses");
-  }
+  createPost(data: CreatePostData, agent: Agent): Promise<BlogPost>;
 
-  async createPost(_data: CreatePostData,agent: Agent): Promise<BlogPost> {
-    throw new Error("Method 'createPost' must be implemented by subclasses");
-  }
+  updatePost(data: UpdatePostData, agent: Agent): Promise<BlogPost>;
 
-  async updatePost(_data: UpdatePostData,agent: Agent): Promise<BlogPost> {
-    throw new Error("Method 'updatePost' must be implemented by subclasses");
-  }
+  selectPostById(id: string, agent: Agent): Promise<BlogPost>;
 
-  async selectPostById(_id: string,agent: Agent): Promise<BlogPost> {
-    throw new Error("Method 'selectPostById' must be implemented by subclasses");
-  }
+  getCurrentPost(agent: Agent): BlogPost | null;
 
-  getCurrentPost(agent: Agent): BlogPost | null {
-    throw new Error("Method 'getCurrentPost' must be implemented by subclasses");
-  }
-
-  async clearCurrentPost(agent: Agent): Promise<void> {
-    throw new Error("Method 'clearCurrentPost' must be implemented by subclasses");
-  }
+  clearCurrentPost(agent: Agent): Promise<void>;
 }

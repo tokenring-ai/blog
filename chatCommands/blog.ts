@@ -1,6 +1,7 @@
 import Agent from "@tokenring-ai/agent/Agent";
-import BlogService from "../BlogService.ts";
 import type {BlogPost} from "../BlogResource.ts";
+import BlogService from "../BlogService.ts";
+import {BlogState} from "../state/BlogState.js";
 
 export const description = "/blog [action] [subaction] - Manage blog posts";
 
@@ -27,6 +28,7 @@ export function help(): Array<string> {
 }
 
 async function selectBlog(
+  blogName: string,
   blogService: BlogService,
   agent: Agent
 ): Promise<void> {
@@ -37,15 +39,29 @@ async function selectBlog(
     return;
   }
 
-  if (availableBlogs.length === 1) {
-    blogService.setActiveBlogName(availableBlogs[0]);
-    agent.infoLine(`Active blog set to: ${availableBlogs[0]}`);
+  if (blogName) {
+    if (availableBlogs.includes(blogName)) {
+      agent.mutateState(BlogState, state => {
+        state.activeBlogName = blogName;
+      });
+      agent.infoLine(`Active blog set to: ${blogName}`);
+    } else {
+      agent.infoLine(`Blog service "${blogName}" not found. Available services: ${availableBlogs.join(", ")}`);
+    }
     return;
   }
 
-  const currentActive = blogService.getActiveBlogName();
+  if (availableBlogs.length === 1) {
+    agent.mutateState(BlogState, state => {
+      state.activeBlogName = availableBlogs[0];
+    });
+    agent.infoLine(`Only one blog configured, auto-selecting: ${availableBlogs[0]}`);
+    return;
+  }
+
+  const activeBlogName = agent.getState(BlogState).activeBlogName;
   const formattedBlogs = availableBlogs.map(name => ({
-    name: `${name}${name === currentActive ? " (current)" : ""}`,
+    name: `${name}${name === activeBlogName ? " (current)" : ""}`,
     value: name,
   }));
 
@@ -61,7 +77,9 @@ async function selectBlog(
   });
 
   if (selectedValue) {
-    blogService.setActiveBlogName(selectedValue);
+    agent.mutateState(BlogState, state => {
+      state.activeBlogName = selectedValue;
+    })
     agent.infoLine(`Active blog set to: ${selectedValue}`);
   } else {
     agent.infoLine("Blog selection cancelled.");
@@ -72,8 +90,8 @@ async function selectPost(
   blogService: BlogService,
   agent: Agent
 ): Promise<void> {
-  const activeBlog = blogService.getActiveBlogName();
-  if (!activeBlog) {
+  const activeBlogName = agent.getState(BlogState).activeBlogName;
+  if (!activeBlogName) {
     agent.infoLine("No active blog selected. Use /blog blog select first.");
     return;
   }
@@ -82,7 +100,7 @@ async function selectPost(
     const posts = await blogService.getAllPosts(agent);
 
     if (!posts || posts.length === 0) {
-      agent.infoLine(`No posts found on ${activeBlog}.`);
+      agent.infoLine(`No posts found on ${activeBlogName}.`);
       return;
     }
 
@@ -103,13 +121,13 @@ async function selectPost(
     });
 
     const treeData = {
-      name: `${activeBlog} Posts`,
+      name: `${activeBlogName} Posts`,
       children: formattedPosts,
     };
 
     const selectedValue = await agent.askHuman({
       type: "askForSingleTreeSelection",
-      message: `Select a post from ${activeBlog} - Choose a post to work with or select 'Clear selection' to start fresh`,
+      message: `Select a post from ${activeBlogName} - Choose a post to work with or select 'Clear selection' to start fresh`,
       tree: treeData
     });
 
@@ -136,8 +154,8 @@ async function postInfo(
   blogService: BlogService,
   agent: Agent
 ): Promise<void> {
-  const activeBlog = blogService.getActiveBlogName();
-  if (!activeBlog) {
+  const activeBlogName = agent.getState(BlogState).activeBlogName;
+  if (!activeBlogName) {
     agent.infoLine("No active blog selected. Use /blog blog select first.");
     return;
   }
@@ -160,7 +178,7 @@ async function postInfo(
     : 0;
 
   const infoLines = [
-    `Blog: ${activeBlog}`,
+    `Blog: ${activeBlogName}`,
     `Title: ${currentPost.title}`,
     `Status: ${currentPost.status}`,
     `Created: ${createdDate}`,
@@ -180,18 +198,12 @@ async function postInfo(
 }
 
 export async function execute(remainder: string, agent: Agent): Promise<void> {
-  const blogService = agent.requireFirstServiceByType(BlogService);
+  const blogService = agent.requireServiceByType(BlogService);
 
   const [action, subaction] = remainder.split(/\s+/);
 
-  if (action === "blog") {
-    switch (subaction) {
-      case "select":
-        await selectBlog(blogService, agent);
-        break;
-      default:
-        agent.infoLine("Unknown subaction. Available subactions: select");
-    }
+  if (action === "select") {
+    await selectBlog(subaction, blogService, agent);
   } else if (action === "post") {
     switch (subaction) {
       case "select":
@@ -201,8 +213,8 @@ export async function execute(remainder: string, agent: Agent): Promise<void> {
         await postInfo(blogService, agent);
         break;
       case "new":
-        const activeBlog = blogService.getActiveBlogName();
-        if (!activeBlog) {
+        const activeBlogName = agent.getState(BlogState).activeBlogName;
+        if (!activeBlogName) {
           agent.infoLine("No active blog selected. Use /blog blog select first.");
           return;
         }
@@ -213,6 +225,6 @@ export async function execute(remainder: string, agent: Agent): Promise<void> {
         agent.infoLine("Unknown subaction. Available subactions: select, info, new");
     }
   } else {
-    agent.infoLine("Unknown action. Available actions: blog [select], post [select|info|new]");
+    agent.infoLine("Unknown action. Available actions: select [blogName], post [select|info|new]");
   }
 }
