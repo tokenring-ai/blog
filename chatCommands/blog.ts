@@ -1,5 +1,5 @@
 import Agent from "@tokenring-ai/agent/Agent";
-import type {BlogPost} from "../BlogResource.ts";
+import type {BlogPost} from "../BlogProvider.ts";
 import BlogService from "../BlogService.ts";
 import {BlogState} from "../state/BlogState.js";
 
@@ -10,8 +10,10 @@ export function help(): Array<string> {
     "/blog [action] [subaction] - Manage blog posts",
     "",
     "Available actions:",
-    "  blog select - Select an active blog service",
-    "    - Opens a selection interface to choose from available blogs",
+    "  provider select - Select an active blog provider",
+    "    - Opens a selection interface to choose from available providers",
+    "  provider set <name> - Set a specific blog provider by name",
+    "    - Directly sets the active provider without interactive selection",
     "",
     "  post select - Select an existing article or clear selection",
     "    - Opens a tree selection interface to choose from available posts",
@@ -24,30 +26,21 @@ export function help(): Array<string> {
     "  post new - Clear the current post selection",
     "    - Starts fresh with no post selected",
     "    - Use this to begin creating a new post",
+    "",
+    "  post publish - Publish the currently selected post",
+    "    - Changes post status from draft to published",
+    "    - Requires a post to be selected first",
   ];
 }
 
-async function selectBlog(
-  blogName: string,
+async function selectProvider(
   blogService: BlogService,
   agent: Agent
 ): Promise<void> {
   const availableBlogs = blogService.getAvailableBlogs();
   
   if (availableBlogs.length === 0) {
-    agent.infoLine("No blog services are registered.");
-    return;
-  }
-
-  if (blogName) {
-    if (availableBlogs.includes(blogName)) {
-      agent.mutateState(BlogState, state => {
-        state.activeBlogName = blogName;
-      });
-      agent.infoLine(`Active blog set to: ${blogName}`);
-    } else {
-      agent.infoLine(`Blog service "${blogName}" not found. Available services: ${availableBlogs.join(", ")}`);
-    }
+    agent.infoLine("No blog providers are registered.");
     return;
   }
 
@@ -55,7 +48,7 @@ async function selectBlog(
     agent.mutateState(BlogState, state => {
       state.activeBlogName = availableBlogs[0];
     });
-    agent.infoLine(`Only one blog configured, auto-selecting: ${availableBlogs[0]}`);
+    agent.infoLine(`Only one provider configured, auto-selecting: ${availableBlogs[0]}`);
     return;
   }
 
@@ -66,13 +59,13 @@ async function selectBlog(
   }));
 
   const treeData = {
-    name: "Available Blogs",
+    name: "Available Providers",
     children: formattedBlogs,
   };
 
   const selectedValue = await agent.askHuman({
     type: "askForSingleTreeSelection",
-    message: "Select an active blog service",
+    message: "Select an active blog provider",
     tree: treeData
   });
 
@@ -80,9 +73,26 @@ async function selectBlog(
     agent.mutateState(BlogState, state => {
       state.activeBlogName = selectedValue;
     })
-    agent.infoLine(`Active blog set to: ${selectedValue}`);
+    agent.infoLine(`Active provider set to: ${selectedValue}`);
   } else {
-    agent.infoLine("Blog selection cancelled.");
+    agent.infoLine("Provider selection cancelled.");
+  }
+}
+
+async function setProvider(
+  providerName: string,
+  blogService: BlogService,
+  agent: Agent
+): Promise<void> {
+  const availableBlogs = blogService.getAvailableBlogs();
+  
+  if (availableBlogs.includes(providerName)) {
+    agent.mutateState(BlogState, state => {
+      state.activeBlogName = providerName;
+    });
+    agent.infoLine(`Active provider set to: ${providerName}`);
+  } else {
+    agent.infoLine(`Provider "${providerName}" not found. Available providers: ${availableBlogs.join(", ")}`);
   }
 }
 
@@ -92,7 +102,7 @@ async function selectPost(
 ): Promise<void> {
   const activeBlogName = agent.getState(BlogState).activeBlogName;
   if (!activeBlogName) {
-    agent.infoLine("No active blog selected. Use /blog blog select first.");
+    agent.infoLine("No active provider selected. Use /blog provider select first.");
     return;
   }
 
@@ -131,6 +141,7 @@ async function selectPost(
       tree: treeData
     });
 
+    debugger;
     if (selectedValue) {
       if (selectedValue === "none") {
         await blogService.clearCurrentPost(agent);
@@ -138,6 +149,8 @@ async function selectPost(
       } else {
         const selectedPost = formattedPosts.find(post => post.value === selectedValue);
         if (selectedPost?.data) {
+          debugger;
+
           await blogService.selectPostById(selectedPost.data.id,agent);
           agent.infoLine(`Selected post: "${selectedPost.data.title}"`);
         }
@@ -156,7 +169,7 @@ async function postInfo(
 ): Promise<void> {
   const activeBlogName = agent.getState(BlogState).activeBlogName;
   if (!activeBlogName) {
-    agent.infoLine("No active blog selected. Use /blog blog select first.");
+    agent.infoLine("No active provider selected. Use /blog provider select first.");
     return;
   }
 
@@ -200,10 +213,16 @@ async function postInfo(
 export async function execute(remainder: string, agent: Agent): Promise<void> {
   const blogService = agent.requireServiceByType(BlogService);
 
-  const [action, subaction] = remainder.split(/\s+/);
+  const [action, subaction, ...args] = remainder.split(/\s+/);
 
-  if (action === "select") {
-    await selectBlog(subaction, blogService, agent);
+  if (action === "provider") {
+    if (subaction === "select") {
+      await selectProvider(blogService, agent);
+    } else if (subaction === "set" && args[0]) {
+      await setProvider(args[0], blogService, agent);
+    } else {
+      agent.infoLine("Usage: /blog provider select OR /blog provider set <name>");
+    }
   } else if (action === "post") {
     switch (subaction) {
       case "select":
@@ -215,16 +234,19 @@ export async function execute(remainder: string, agent: Agent): Promise<void> {
       case "new":
         const activeBlogName = agent.getState(BlogState).activeBlogName;
         if (!activeBlogName) {
-          agent.infoLine("No active blog selected. Use /blog blog select first.");
+          agent.infoLine("No active provider selected. Use /blog provider select first.");
           return;
         }
         await blogService.clearCurrentPost(agent);
         agent.infoLine("New post started. No post is currently selected. Use tools to create and publish.");
         break;
+      case "publish":
+        await blogService.publishPost(agent);
+        break;
       default:
-        agent.infoLine("Unknown subaction. Available subactions: select, info, new");
+        agent.infoLine("Unknown subaction. Available subactions: select, info, new, publish");
     }
   } else {
-    agent.infoLine("Unknown action. Available actions: select [blogName], post [select|info|new]");
+    agent.infoLine("Unknown action. Available actions: provider [select|set], post [select|info|new|publish]");
   }
 }

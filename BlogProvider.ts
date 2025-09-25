@@ -13,17 +13,17 @@ export interface BlogPost {
   url?: string;
 }
 
-export type CreatePostData = Omit<BlogPost, 'id' | 'created_at' | 'updated_at' | 'published_at'>;
+export type CreatePostData = Omit<BlogPost, 'id' | 'created_at' | 'updated_at' | 'published_at' | 'status'>;
 
 export type UpdatePostData = Partial<Omit<BlogPost, 'id' | 'created_at' | 'updated_at'>>;
 
-export interface BlogResourceOptions {
+export interface BlogProviderOptions {
   description: string;
   imageGenerationModel: string;
   cdn: string;
 }
 
-export interface BlogResource {
+export interface BlogProvider {
   description: string;
   
   imageGenerationModel: string;

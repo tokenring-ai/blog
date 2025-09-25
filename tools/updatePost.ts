@@ -1,7 +1,7 @@
 import Agent from "@tokenring-ai/agent/Agent";
 import {marked} from "marked";
 import {z} from "zod";
-import {UpdatePostData} from "../BlogResource.js";
+import {UpdatePostData} from "../BlogProvider.js";
 import BlogService from "../BlogService.ts";
 
 export const name = "blog/updatePost";

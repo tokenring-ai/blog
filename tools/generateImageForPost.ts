@@ -23,7 +23,7 @@ export async function execute(
     throw new Error("Prompt is required");
   }
 
-  const activeBlog = blogService.requireActiveBlogResource(agent);
+  const activeBlog = blogService.requireActiveBlogProvider(agent);
 
   const currentPost = activeBlog.getCurrentPost(agent);
   if (!currentPost) {

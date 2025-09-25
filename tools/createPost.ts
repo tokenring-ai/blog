@@ -27,7 +27,6 @@ export async function execute(
 
   const post = await blogService.createPost({
     title,
-    status: "draft",
     content: marked(contentInMarkdown, { async: false}),
     tags
   },agent);
