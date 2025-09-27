@@ -141,7 +141,6 @@ async function selectPost(
       tree: treeData
     });
 
-    debugger;
     if (selectedValue) {
       if (selectedValue === "none") {
         await blogService.clearCurrentPost(agent);
@@ -149,8 +148,6 @@ async function selectPost(
       } else {
         const selectedPost = formattedPosts.find(post => post.value === selectedValue);
         if (selectedPost?.data) {
-          debugger;
-
           await blogService.selectPostById(selectedPost.data.id,agent);
           agent.infoLine(`Selected post: "${selectedPost.data.title}"`);
         }
