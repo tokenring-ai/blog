@@ -4,12 +4,15 @@ export interface BlogPost {
   id: string;
   title: string;
   content?: string;
-  status: 'draft' | 'published' | 'scheduled';
+  status: 'draft' | 'published' | 'scheduled' | 'pending' | 'private';
   tags?: string[];
   created_at: Date;
   updated_at: Date;
   published_at?: Date;
-  feature_image?: string;
+  feature_image?: {
+    id?: string;
+    url?: string;
+  }
   url?: string;
 }
 

@@ -2,6 +2,7 @@ import Agent from "@tokenring-ai/agent/Agent";
 import type {BlogPost} from "../BlogProvider.ts";
 import BlogService from "../BlogService.ts";
 import {BlogState} from "../state/BlogState.js";
+import {testBlogConnection} from "../util/testBlogConnection.js";
 
 export const description = "/blog [action] [subaction] - Manage blog posts";
 
@@ -30,6 +31,9 @@ export function help(): Array<string> {
     "  post publish - Publish the currently selected post",
     "    - Changes post status from draft to published",
     "    - Requires a post to be selected first",
+    "",
+    "  test - Test blog connection by creating a post and uploading an image",
+    "    - Lists current posts, creates a test post, uploads hello.png, and updates post",
   ];
 }
 
@@ -243,7 +247,9 @@ export async function execute(remainder: string, agent: Agent): Promise<void> {
       default:
         agent.infoLine("Unknown subaction. Available subactions: select, info, new, publish");
     }
+  } else if (action === "test") {
+    await testBlogConnection(blogService, agent);
   } else {
-    agent.infoLine("Unknown action. Available actions: provider [select|set], post [select|info|new|publish]");
+    agent.infoLine("Unknown action. Available actions: provider [select|set], post [select|info|new|publish], test");
   }
 }

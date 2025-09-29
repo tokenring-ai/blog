@@ -58,7 +58,10 @@ export async function execute(
 
   // Update the current post with the featured image
   await blogService.updatePost({
-    feature_image: uploadResult.url
+    feature_image: {
+      id: uploadResult.id,
+      url: uploadResult.url
+    }
   },agent);
 
   return {
