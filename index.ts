@@ -1,4 +1,6 @@
 import {AgentTeam, TokenRingPackage} from "@tokenring-ai/agent";
+import {ScriptingService} from "@tokenring-ai/scripting";
+import {ScriptingThis} from "@tokenring-ai/scripting/ScriptingService.js";
 import {z} from "zod";
 import BlogService from "./BlogService.ts";
 import * as chatCommands from "./chatCommands.ts";
@@ -19,6 +21,47 @@ export const packageInfo: TokenRingPackage = {
       const service = new BlogService();
       agentTeam.services.register(service);
     }
+    agentTeam.services.waitForItemByType(ScriptingService).then((scriptingService: ScriptingService) => {
+      scriptingService.registerFunction(
+        "createPost", {
+          type: 'native',
+          params: ['title', 'content'],
+          async execute(this: ScriptingThis, title: string, content: string): Promise<string> {
+            const post = await this.agent.requireServiceByType(BlogService).createPost({title, content}, this.agent);
+            return `Created post: ${post.id}`;
+          }
+        });
+
+      scriptingService.registerFunction("updatePost", {
+          type: 'native',
+          params: ['title', 'content'],
+          async execute(this: ScriptingThis, title: string, content: string): Promise<string> {
+            const post = await this.agent.requireServiceByType(BlogService).updatePost({title, content}, this.agent);
+            return `Updated post: ${post.id}`;
+          }
+        }
+      );
+
+      scriptingService.registerFunction("getCurrentPost", {
+          type: 'native',
+          params: [],
+          async execute(this: ScriptingThis): Promise<string> {
+            const post = this.agent.requireServiceByType(BlogService).getCurrentPost(this.agent);
+            return post ? JSON.stringify(post) : 'No post selected';
+          }
+        }
+      );
+
+      scriptingService.registerFunction("getAllPosts", {
+          type: 'native',
+          params: [],
+          async execute(this: ScriptingThis): Promise<string> {
+            const posts = await this.agent.requireServiceByType(BlogService).getAllPosts(this.agent);
+            return JSON.stringify(posts);
+          }
+        }
+      );
+    });
     agentTeam.addTools(packageInfo, tools);
     agentTeam.addChatCommands(chatCommands);
   },
