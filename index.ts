@@ -11,7 +11,7 @@ export const BlogConfigSchema = z.object({
   providers: z.record(z.string(), z.any())
 }).optional();
 
-export const packageInfo: TokenRingPackage = {
+export default {
   name: packageJSON.name,
   version: packageJSON.version,
   description: packageJSON.description,
@@ -62,9 +62,9 @@ export const packageInfo: TokenRingPackage = {
         }
       );
     });
-    agentTeam.addTools(packageInfo, tools);
+    agentTeam.addTools(packageJSON.name, tools);
     agentTeam.addChatCommands(chatCommands);
   },
-};
+} as TokenRingPackage;
 
 export {default as BlogService} from "./BlogService.ts";

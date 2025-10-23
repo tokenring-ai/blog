@@ -1,5 +1,5 @@
-import {AgentStateSlice} from "@tokenring-ai/agent/Agent";
 import {ResetWhat} from "@tokenring-ai/agent/AgentEvents";
+import type { AgentStateSlice } from "@tokenring-ai/agent/types";
 
 export class BlogState implements AgentStateSlice {
   name = "BlogState";
