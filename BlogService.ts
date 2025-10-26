@@ -80,18 +80,4 @@ export default class BlogService implements TokenRingService {
     await activeBlog.updatePost({ status: "published" }, agent);
     agent.infoLine(`Post "${currentPost.title}" has been published.`);
   }
-
-  async* xgetContextItems(agent: Agent): AsyncGenerator<ContextItem> {
-    if (agent.tools.hasItemLike(/@tokenring-ai\/blog/)) {
-
-      yield {
-        position: "afterSystemMessage",
-        role: "user",
-        content: `/* The following blogs are available for use with the blog tool */` +
-          Object.entries(this.providers.getAllItems()).map(([name, blog]) =>
-            `- ${name}: ${blog.description}`
-          ).join("\n")
-      };
-    }
-  }
 }

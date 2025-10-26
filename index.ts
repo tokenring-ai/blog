@@ -1,4 +1,5 @@
-import {AgentTeam, TokenRingPackage} from "@tokenring-ai/agent";
+import {AgentCommandService, AgentTeam, TokenRingPackage} from "@tokenring-ai/agent";
+import {AIService} from "@tokenring-ai/ai-client";
 import {ScriptingService} from "@tokenring-ai/scripting";
 import {ScriptingThis} from "@tokenring-ai/scripting/ScriptingService.js";
 import {z} from "zod";
@@ -62,8 +63,13 @@ export default {
         }
       );
     });
-    agentTeam.addTools(packageJSON.name, tools);
-    agentTeam.addChatCommands(chatCommands);
+
+    agentTeam.waitForService(AIService, aiService =>
+      aiService.addTools(packageJSON.name, tools)
+    );
+    agentTeam.waitForService(AgentCommandService, agentCommandService =>
+      agentCommandService.addAgentCommands(chatCommands)
+    );
   },
 } as TokenRingPackage;
 

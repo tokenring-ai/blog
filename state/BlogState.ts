@@ -24,4 +24,10 @@ export class BlogState implements AgentStateSlice {
   deserialize(data: any): void {
     this.activeBlogName = data.activeBlogName;
   }
+
+  show(): string[] {
+    return [
+      `Active Blog: ${this.activeBlogName || 'None'}`
+    ];
+  }
 }
