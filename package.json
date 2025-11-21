@@ -4,8 +4,9 @@
   "description": "A blog abstraction for Token Ring",
   "dependencies": {
     "@tokenring-ai/agent": "0.1.0",
+    "@tokenring-ai/chat": "0.1.0",
     "@tokenring-ai/utility": "0.1.0",
-    "marked": "^16.4.1",
+    "marked": "^17.0.1",
     "uuid": "^13.0.0"
   },
   "exports": {
