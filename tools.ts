@@ -1,5 +1,5 @@
-export * as createPost from "./tools/createPost.ts";
-export * as updatePost from "./tools/updatePost.ts";
-export * as getAllPosts from "./tools/getAllPosts.ts";
-export * as getCurrentPost from "./tools/getCurrentPost.ts";
-export * as generateImageForPost from "./tools/generateImageForPost.ts";
+export {default as createPost} from "./tools/createPost.ts";
+export {default as updatePost} from "./tools/updatePost.ts";
+export {default as getAllPosts} from "./tools/getAllPosts.ts";
+export {default as getCurrentPost} from "./tools/getCurrentPost.ts";
+export {default as generateImageForPost} from "./tools/generateImageForPost.ts";

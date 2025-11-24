@@ -1,19 +1,16 @@
 import Agent from "@tokenring-ai/agent/Agent";
 import ModelRegistry from "@tokenring-ai/ai-client/ModelRegistry";
 import CDNService from "@tokenring-ai/cdn/CDNService";
+import {TokenRingToolDefinition} from "@tokenring-ai/chat/types";
 import {Buffer} from "node:buffer";
 import {v4 as uuid} from "uuid";
 import {z} from "zod";
 import BlogService from "../BlogService.ts";
-import {BlogState} from "../state/BlogState.js";
 
-export const name = "blog/generateImageForPost";
+const name = "blog/generateImageForPost";
 
-export async function execute(
-  {prompt, aspectRatio = "square"}: {
-    prompt?: string;
-    aspectRatio?: "square" | "tall" | "wide";
-  },
+async function execute(
+  {prompt, aspectRatio = "square"}: z.infer<typeof inputSchema>,
   agent: Agent,
 ) {
   const blogService = agent.requireServiceByType(BlogService);
@@ -71,9 +68,13 @@ export async function execute(
   };
 }
 
-export const description = "Generate an AI image for the currently selected blog post";
+const description = "Generate an AI image for the currently selected blog post";
 
-export const inputSchema = z.object({
+const inputSchema = z.object({
   prompt: z.string().describe("Description of the image to generate"),
   aspectRatio: z.enum(["square", "tall", "wide"]).default("square").optional(),
 });
+
+export default {
+  name, description, inputSchema, execute,
+} as TokenRingToolDefinition<typeof inputSchema>;

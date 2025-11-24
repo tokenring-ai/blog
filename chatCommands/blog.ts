@@ -1,12 +1,13 @@
 import Agent from "@tokenring-ai/agent/Agent";
+import {TokenRingAgentCommand} from "@tokenring-ai/agent/types";
 import type {BlogPost} from "../BlogProvider.ts";
 import BlogService from "../BlogService.ts";
 import {BlogState} from "../state/BlogState.js";
 import {testBlogConnection} from "../util/testBlogConnection.js";
 
-export const description = "/blog [action] [subaction] - Manage blog posts";
+const description = "/blog [action] [subaction] - Manage blog posts";
 
-export function help(): Array<string> {
+function help(): Array<string> {
   return [
     "/blog [action] [subaction] - Manage blog posts",
     "",
@@ -211,7 +212,7 @@ async function postInfo(
   agent.infoLine(infoLines.join("\n"));
 }
 
-export async function execute(remainder: string, agent: Agent): Promise<void> {
+async function execute(remainder: string, agent: Agent): Promise<void> {
   const blogService = agent.requireServiceByType(BlogService);
 
   const [action, subaction, ...args] = remainder.split(/\s+/);
@@ -253,3 +254,9 @@ export async function execute(remainder: string, agent: Agent): Promise<void> {
     agent.infoLine("Unknown action. Available actions: provider [select|set], post [select|info|new|publish], test");
   }
 }
+
+export default {
+  description,
+  execute,
+  help,
+} as TokenRingAgentCommand

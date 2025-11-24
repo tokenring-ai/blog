@@ -1,1 +1,1 @@
-export * as blog from "./chatCommands/blog.ts";
+export {default as blog} from "./chatCommands/blog.ts";

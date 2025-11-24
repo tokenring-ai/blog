@@ -1,16 +1,13 @@
 import Agent from "@tokenring-ai/agent/Agent";
+import {TokenRingToolDefinition} from "@tokenring-ai/chat/types";
 import {marked} from "marked";
 import {z} from "zod";
 import BlogService from "../BlogService.ts";
 
-export const name = "blog/createPost";
+const name = "blog/createPost";
 
-export async function execute(
-  {title, contentInMarkdown, tags}: {
-    title?: string;
-    contentInMarkdown?: string;
-    tags?: string[];
-  },
+async function execute(
+  {title, contentInMarkdown, tags}: z.infer<typeof inputSchema>,
   agent: Agent,
 ) {
   if (!title) {
@@ -35,9 +32,9 @@ export async function execute(
   return post;
 }
 
-export const description = "Create a new blog post";
+const description = "Create a new blog post";
 
-export const inputSchema = z.object({
+const inputSchema = z.object({
   title: z.string().describe("Title of the blog post"),
   contentInMarkdown: z
     .string()
@@ -46,3 +43,7 @@ export const inputSchema = z.object({
     ),
   tags: z.array(z.string()).describe("Tags for the post").optional()
 });
+
+export default {
+  name, description, inputSchema, execute,
+} as TokenRingToolDefinition<typeof inputSchema>;
