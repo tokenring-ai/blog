@@ -1,4 +1,5 @@
-import {AgentCommandService, AgentTeam, TokenRingPackage} from "@tokenring-ai/agent";
+import {AgentCommandService} from "@tokenring-ai/agent";
+import TokenRingApp, { TokenRingPlugin } from "@tokenring-ai/app";
 import {ChatService} from "@tokenring-ai/chat";
 import {ScriptingService} from "@tokenring-ai/scripting";
 import {ScriptingThis} from "@tokenring-ai/scripting/ScriptingService.js";
@@ -16,13 +17,13 @@ export default {
   name: packageJSON.name,
   version: packageJSON.version,
   description: packageJSON.description,
-  install(agentTeam: AgentTeam) {
-    const config = agentTeam.getConfigSlice('blog', BlogConfigSchema);
+  install(app: TokenRingApp) {
+    const config = app.getConfigSlice('blog', BlogConfigSchema);
     if (config) {
       const service = new BlogService();
-      agentTeam.services.register(service);
+      app.services.register(service);
     }
-    agentTeam.services.waitForItemByType(ScriptingService).then((scriptingService: ScriptingService) => {
+    app.services.waitForItemByType(ScriptingService).then((scriptingService: ScriptingService) => {
       scriptingService.registerFunction(
         "createPost", {
           type: 'native',
@@ -64,13 +65,13 @@ export default {
       );
     });
 
-    agentTeam.waitForService(ChatService, chatService =>
+    app.waitForService(ChatService, chatService =>
       chatService.addTools(packageJSON.name, tools)
     );
-    agentTeam.waitForService(AgentCommandService, agentCommandService =>
+    app.waitForService(AgentCommandService, agentCommandService =>
       agentCommandService.addAgentCommands(chatCommands)
     );
   },
-} as TokenRingPackage;
+} as TokenRingPlugin;
 
 export {default as BlogService} from "./BlogService.ts";

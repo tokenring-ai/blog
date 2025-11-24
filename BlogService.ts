@@ -1,6 +1,6 @@
 import Agent from "@tokenring-ai/agent/Agent";
-import {ContextItem, TokenRingService} from "@tokenring-ai/agent/types";
-import KeyedRegistry from "@tokenring-ai/utility/KeyedRegistry";
+import {TokenRingService} from "@tokenring-ai/app/types";
+import KeyedRegistry from "@tokenring-ai/utility/registry/KeyedRegistry";
 import {type BlogPost, BlogProvider, type CreatePostData, type UpdatePostData} from "./BlogProvider.js";
 import {BlogState} from "./state/BlogState.js";
 
