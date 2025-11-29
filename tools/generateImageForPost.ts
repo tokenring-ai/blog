@@ -1,5 +1,5 @@
 import Agent from "@tokenring-ai/agent/Agent";
-import ModelRegistry from "@tokenring-ai/ai-client/ModelRegistry";
+import {ImageGenerationModelRegistry} from "@tokenring-ai/ai-client/ModelRegistry";
 import CDNService from "@tokenring-ai/cdn/CDNService";
 import {TokenRingToolDefinition} from "@tokenring-ai/chat/types";
 import {Buffer} from "node:buffer";
@@ -15,7 +15,7 @@ async function execute(
 ) {
   const blogService = agent.requireServiceByType(BlogService);
   const cdnService = agent.requireServiceByType(CDNService);
-  const modelRegistry = agent.requireServiceByType(ModelRegistry);
+  const imageModelRegistry = agent.requireServiceByType(ImageGenerationModelRegistry);
   if (!prompt) {
     throw new Error("Prompt is required");
   }
@@ -29,7 +29,7 @@ async function execute(
 
   agent.infoLine(`[${name}] Generating image for post "${currentPost.title}"`);
 
-  const imageClient = await modelRegistry.imageGeneration.getFirstOnlineClient(activeBlog.imageGenerationModel);
+  const imageClient = await imageModelRegistry.getFirstOnlineClient(activeBlog.imageGenerationModel);
 
   let size: `${number}x${number}`;
   switch (aspectRatio) {

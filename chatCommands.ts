@@ -1,1 +1,3 @@
-export {default as blog} from "./chatCommands/blog.ts";
+import {default as blog} from "./commands/blog.ts";
+
+export default {blog}

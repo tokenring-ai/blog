@@ -7,36 +7,75 @@ import {testBlogConnection} from "../util/testBlogConnection.js";
 
 const description = "/blog [action] [subaction] - Manage blog posts";
 
-function help(): Array<string> {
-  return [
-    "/blog [action] [subaction] - Manage blog posts",
-    "",
-    "Available actions:",
-    "  provider select - Select an active blog provider",
-    "    - Opens a selection interface to choose from available providers",
-    "  provider set <name> - Set a specific blog provider by name",
-    "    - Directly sets the active provider without interactive selection",
-    "",
-    "  post select - Select an existing article or clear selection",
-    "    - Opens a tree selection interface to choose from available posts",
-    "    - Includes option to clear current selection",
-    "",
-    "  post info - Display information about the currently selected post",
-    "    - Shows title, status, dates, word count, tags, and URL",
-    "    - Requires a post to be selected first",
-    "",
-    "  post new - Clear the current post selection",
-    "    - Starts fresh with no post selected",
-    "    - Use this to begin creating a new post",
-    "",
-    "  post publish - Publish the currently selected post",
-    "    - Changes post status from draft to published",
-    "    - Requires a post to be selected first",
-    "",
-    "  test - Test blog connection by creating a post and uploading an image",
-    "    - Lists current posts, creates a test post, uploads hello.png, and updates post",
-  ];
-}
+const help: string = `# Blog Command
+
+Manage blog posts and providers.
+
+## Usage
+
+\`/blog [action] [subaction]\`
+
+## Actions
+
+### Provider Management
+
+#### \`provider select\`
+Select an active blog provider interactively.
+- Opens a selection interface to choose from available providers
+- Auto-selects if only one provider is configured
+- Shows current active provider in the list
+
+#### \`provider set <name>\`
+Set a specific blog provider by name.
+- Directly sets the active provider without interactive selection
+- Validates that the provider exists
+
+### Post Management
+
+#### \`post select\`
+Select an existing article or clear selection.
+- Opens a tree selection interface to choose from available posts
+- Shows post status (📝 published, 🔒 draft) and last updated date
+- Includes option to clear current selection
+- Requires an active provider to be set first
+
+#### \`post info\`
+Display information about the currently selected post.
+- Shows title, status, dates, word count, tags, and URL
+- Requires a post to be selected first
+
+#### \`post new\`
+Clear the current post selection.
+- Starts fresh with no post selected
+- Use this to begin creating a new post
+- Requires an active provider to be set first
+
+#### \`post publish\`
+Publish the currently selected post.
+- Changes post status from draft to published
+- Requires a post to be selected first
+
+### Testing
+
+#### \`test\`
+Test blog connection by creating a post and uploading an image.
+- Lists current posts
+- Creates a test post
+- Uploads hello.png image
+- Updates the test post with the image
+
+## Examples
+
+\`\`\`
+/blog provider select
+/blog provider set wordpress
+/blog post select
+/blog post info
+/blog post new
+/blog post publish
+/blog test
+\`\`\`
+`;
 
 async function selectProvider(
   blogService: BlogService,
