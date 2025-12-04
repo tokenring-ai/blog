@@ -23,7 +23,7 @@ export default {
       const service = new BlogService();
       app.services.register(service);
     }
-    app.services.waitForItemByType(ScriptingService).then((scriptingService: ScriptingService) => {
+    app.services.waitForItemByType(ScriptingService, (scriptingService: ScriptingService) => {
       scriptingService.registerFunction(
         "createPost", {
           type: 'native',
