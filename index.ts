@@ -72,6 +72,6 @@ export default {
       agentCommandService.addAgentCommands(chatCommands)
     );
   },
-} as TokenRingPlugin;
+} satisfies TokenRingPlugin;
 
 export {default as BlogService} from "./BlogService.ts";
