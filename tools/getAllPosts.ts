@@ -20,7 +20,7 @@ async function execute(
   if (tag) {
     posts = posts.filter(post => 
       post.tags?.some(postTag => 
-        typeof postTag === "string" ? postTag === tag : postTag === tag
+        true ? postTag === tag : postTag === tag
       )
     );
   }
