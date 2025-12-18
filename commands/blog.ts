@@ -109,6 +109,7 @@ async function selectProvider(
 
   const selectedValue = await agent.askHuman({
     type: "askForSingleTreeSelection",
+    title: "Blog Provider Selection",
     message: "Select an active blog provider",
     tree: treeData
   });
@@ -181,7 +182,8 @@ async function selectPost(
 
     const selectedValue = await agent.askHuman({
       type: "askForSingleTreeSelection",
-      message: `Select a post from ${activeBlogName} - Choose a post to work with or select 'Clear selection' to start fresh`,
+      title: "Post Selection",
+      message: `Choose a post to work with or select 'Clear selection' to start fresh`,
       tree: treeData
     });
 
