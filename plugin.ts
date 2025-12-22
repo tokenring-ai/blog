@@ -2,7 +2,7 @@ import {AgentCommandService} from "@tokenring-ai/agent";
 import TokenRingApp, {TokenRingPlugin} from "@tokenring-ai/app";
 import {ChatService} from "@tokenring-ai/chat";
 import {ScriptingService} from "@tokenring-ai/scripting";
-import {ScriptingThis} from "@tokenring-ai/scripting/ScriptingService.js";
+import {ScriptingThis} from "@tokenring-ai/scripting/ScriptingService";
 import BlogService from "./BlogService.ts";
 import chatCommands from "./chatCommands.ts";
 import packageJSON from './package.json' with {type: 'json'};
