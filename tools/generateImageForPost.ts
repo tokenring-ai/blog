@@ -7,7 +7,7 @@ import {v4 as uuid} from "uuid";
 import {z} from "zod";
 import BlogService from "../BlogService.ts";
 
-const name = "blog/generateImageForPost";
+const name = "blog_generateImageForPost";
 
 async function execute(
   {prompt, aspectRatio = "square"}: z.infer<typeof inputSchema>,

@@ -4,7 +4,7 @@ import {marked} from "marked";
 import {z} from "zod";
 import BlogService from "../BlogService.ts";
 
-const name = "blog/createPost";
+const name = "blog_createPost";
 
 async function execute(
   {title, contentInMarkdown, tags}: z.infer<typeof inputSchema>,

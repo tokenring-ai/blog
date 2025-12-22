@@ -5,7 +5,7 @@ import {z} from "zod";
 import {UpdatePostData} from "../BlogProvider.js";
 import BlogService from "../BlogService.ts";
 
-const name = "blog/updatePost";
+const name = "blog_updatePost";
 
 async function execute(
   {title, contentInMarkdown, tags}: z.infer<typeof inputSchema>,

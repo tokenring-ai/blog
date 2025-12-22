@@ -3,7 +3,7 @@ import {TokenRingToolDefinition} from "@tokenring-ai/chat/types";
 import {z} from "zod";
 import BlogService from "../BlogService.ts";
 
-const name = "blog/getAllPosts";
+const name = "blog_getAllPosts";
 
 async function execute(
   {status = "all", tag, limit = 10}: z.infer<typeof inputSchema>,
