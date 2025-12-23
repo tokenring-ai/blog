@@ -19,9 +19,7 @@ async function execute(
 
   if (tag) {
     posts = posts.filter(post => 
-      post.tags?.some(postTag => 
-        true ? postTag === tag : postTag === tag
-      )
+      post.tags?.some(postTag => postTag === tag)
     );
   }
 

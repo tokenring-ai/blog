@@ -20,12 +20,6 @@ export type CreatePostData = Omit<BlogPost, 'id' | 'created_at' | 'updated_at' |
 
 export type UpdatePostData = Partial<Omit<BlogPost, 'id' | 'created_at' | 'updated_at'>>;
 
-export interface BlogProviderOptions {
-  description: string;
-  imageGenerationModel: string;
-  cdn: string;
-}
-
 export interface BlogProvider {
   description: string;
   
