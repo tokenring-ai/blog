@@ -60,6 +60,45 @@ Manages multiple blog resources and provides a unified interface for blog operat
 - Manages current post selection
 - Supports publishing and image generation
 
+```typescript
+export default class BlogService implements TokenRingService {
+  name = "BlogService";
+  description = "Abstract interface for blog operations";
+
+  // Register and manage blog providers
+  registerBlog(provider: BlogProvider): void;
+  getAvailableBlogs(): string[];
+
+  // Post operations
+  createPost(data: CreatePostData, agent: Agent): Promise<BlogPost>;
+  updatePost(data: UpdatePostData, agent: Agent): Promise<BlogPost>;
+  getAllPosts(agent: Agent): Promise<BlogPost[]>;
+  
+  // Post selection and management
+  selectPostById(id: string, agent: Agent): Promise<BlogPost>;
+  getCurrentPost(agent: Agent): BlogPost | null;
+  clearCurrentPost(agent: Agent): Promise<void>;
+  publishPost(agent: Agent): Promise<void>;
+}
+```
+
+### State Management
+
+The package uses `BlogState` to track the active blog provider and selected post:
+
+```typescript
+export class BlogState implements AgentStateSlice {
+  name = "BlogState";
+  activeBlogName: string | undefined;
+
+  // Methods for serialization, deserialization, and reset
+  serialize(): object;
+  deserialize(data: any): void;
+  reset(what: ResetWhat[]): void;
+  show(): string[];
+}
+```
+
 ## Package Structure
 
 ```
@@ -74,7 +113,8 @@ pkg/blog/
 │   ├── getCurrentPost.ts
 │   └── generateImageForPost.ts
 ├── commands/blog.ts         # Chat commands
-└── chatCommands.ts          # Command registration
+├── chatCommands.ts          # Command registration
+└── plugin.ts                # Plugin installation
 ```
 
 ## Usage
@@ -165,7 +205,7 @@ Update the currently selected blog post.
   "inputSchema": {
     "title": "string",
     "contentInMarkdown": "string",
-       "tags": "string[]"
+    "tags": "string[]"
   }
 }
 ```
@@ -312,16 +352,58 @@ class WordPressProvider implements BlogProvider {
 }
 ```
 
-### State Management
+### Scripting Integration
 
-The service uses `BlogState` to track the active blog provider and selected post:
+The package provides scripting functions for programmatic access:
 
 ```typescript
-export class BlogState implements AgentStateSlice {
-  activeBlogName: string | undefined;
-  
-  // Methods for serialization, deserialization, and reset
-}
+// Register blog scripting functions
+scriptingService.registerFunction("createPost", {
+  type: 'native',
+  params: ['title', 'content'],
+  async execute(this: ScriptingThis, title: string, content: string): Promise<string> {
+    const post = await this.agent.requireServiceByType(BlogService).createPost({title, content}, this.agent);
+    return `Created post: ${post.id}`;
+  }
+});
+
+scriptingService.registerFunction("updatePost", {
+  type: 'native',
+  params: ['title', 'content'],
+  async execute(this: ScriptingThis, title: string, content: string): Promise<string> {
+    const post = await this.agent.requireServiceByType(BlogService).updatePost({title, content}, this.agent);
+    return `Updated post: ${post.id}`;
+  }
+});
+```
+
+### Plugin Installation
+
+The package registers as a Token Ring plugin with automatic service registration:
+
+```typescript
+export default {
+  name: "@tokenring-ai/blog",
+  version: "0.2.0",
+  description: "A blog abstraction for Token Ring",
+  install(app: TokenRingApp) {
+    const config = app.getConfigSlice('blog', BlogConfigSchema);
+    if (config) {
+      const service = new BlogService();
+      app.services.register(service);
+    }
+    
+    // Register chat tools
+    app.waitForService(ChatService, chatService => 
+      chatService.addTools(packageJSON.name, tools)
+    );
+    
+    // Register agent commands
+    app.waitForService(AgentCommandService, agentCommandService => 
+      agentCommandService.addAgentCommands(chatCommands)
+    );
+  },
+} satisfies TokenRingPlugin;
 ```
 
 ## Best Practices
@@ -331,5 +413,13 @@ export class BlogState implements AgentStateSlice {
 3. **Image Generation**: Use the built-in image generation tool for featured images
 4. **State Management**: Clear current post selection when starting a new post
 5. **Publishing**: Only publish posts with appropriate status updates
+6. **Scripting**: Use the built-in scripting functions for programmatic access
+7. **CDN Integration**: Ensure proper CDN configuration for image uploads
+
+## Known Issues
+
+- Requires an active blog provider to be selected before most operations
+- Image generation requires both AI client and CDN services to be available
+- Markdown content is converted to HTML before saving
 
 This package provides a comprehensive abstraction layer for blog operations that can be extended to support various blogging platforms.
