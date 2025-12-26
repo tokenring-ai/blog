@@ -1,22 +1,25 @@
 import {AgentCommandService} from "@tokenring-ai/agent";
-import TokenRingApp, {TokenRingPlugin} from "@tokenring-ai/app";
+import {TokenRingPlugin} from "@tokenring-ai/app";
 import {ChatService} from "@tokenring-ai/chat";
 import {ScriptingService} from "@tokenring-ai/scripting";
 import {ScriptingThis} from "@tokenring-ai/scripting/ScriptingService";
+import {z} from "zod";
 import BlogService from "./BlogService.ts";
 import chatCommands from "./chatCommands.ts";
+import {BlogConfigSchema} from "./index.ts";
 import packageJSON from './package.json' with {type: 'json'};
 import tools from "./tools.ts";
-import { BlogConfigSchema } from "./index.ts";
 
+const packageConfigSchema = z.object({
+  blog: BlogConfigSchema
+})
 
 export default {
   name: packageJSON.name,
   version: packageJSON.version,
   description: packageJSON.description,
-  install(app: TokenRingApp) {
-    const config = app.getConfigSlice('blog', BlogConfigSchema);
-    if (config) {
+  install(app, config) {
+    if (config.blog) {
       const service = new BlogService();
       app.services.register(service);
     }
@@ -69,4 +72,5 @@ export default {
       agentCommandService.addAgentCommands(chatCommands)
     );
   },
-} satisfies TokenRingPlugin;
+  config: packageConfigSchema
+} satisfies TokenRingPlugin<typeof packageConfigSchema>;
