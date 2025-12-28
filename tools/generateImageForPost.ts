@@ -29,7 +29,7 @@ async function execute(
 
   agent.infoLine(`[${name}] Generating image for post "${currentPost.title}"`);
 
-  const imageClient = await imageModelRegistry.getFirstOnlineClient(activeBlog.imageGenerationModel);
+  const imageClient = await imageModelRegistry.getClient(activeBlog.imageGenerationModel);
 
   let size: `${number}x${number}`;
   switch (aspectRatio) {
