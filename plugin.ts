@@ -11,18 +11,18 @@ import packageJSON from './package.json' with {type: 'json'};
 import tools from "./tools.ts";
 
 const packageConfigSchema = z.object({
-  blog: BlogConfigSchema
-})
+  blog: BlogConfigSchema.optional()
+}).default({});
 
 export default {
   name: packageJSON.name,
   version: packageJSON.version,
   description: packageJSON.description,
   install(app, config) {
-    if (config.blog) {
-      const service = new BlogService();
-      app.services.register(service);
-    }
+    if (! config.blog) return;
+    const service = new BlogService(config.blog);
+    app.services.register(service);
+
     app.services.waitForItemByType(ScriptingService, (scriptingService: ScriptingService) => {
       scriptingService.registerFunction(
         "createPost", {

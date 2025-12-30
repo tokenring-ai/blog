@@ -1,9 +1,2 @@
-import {z} from "zod";
-
-export const BlogConfigSchema = z.object({
-  providers: z.record(z.string(), z.any())
-}).optional();
-
-
-
+export {BlogConfigSchema, BlogAgentConfigSchema} from "./schema.ts";
 export {default as BlogService} from "./BlogService.ts";

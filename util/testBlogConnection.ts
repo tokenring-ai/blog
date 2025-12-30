@@ -4,18 +4,11 @@ import {readFileSync} from "node:fs";
 import {resolve} from "node:path";
 import {v4 as uuid} from "uuid";
 import BlogService from "../BlogService.js";
-import {BlogState} from "../state/BlogState.js";
 
 export async function testBlogConnection(
   blogService: BlogService,
   agent: Agent
 ): Promise<void> {
-  const activeBlogName = agent.getState(BlogState).activeBlogName;
-  if (!activeBlogName) {
-    agent.infoLine("No active provider selected. Use /blog provider select first.");
-    return;
-  }
-
   try {
     const activeBlog = blogService.requireActiveBlogProvider(agent);
     const cdnService = agent.requireServiceByType(CDNService);

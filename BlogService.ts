@@ -1,7 +1,9 @@
 import Agent from "@tokenring-ai/agent/Agent";
 import {TokenRingService} from "@tokenring-ai/app/types";
 import KeyedRegistry from "@tokenring-ai/utility/registry/KeyedRegistry";
+import {z} from "zod";
 import {type BlogPost, BlogProvider, type CreatePostData, type UpdatePostData} from "./BlogProvider.js";
+import {BlogAgentConfigSchema, BlogConfigSchema} from "./schema.ts";
 import {BlogState} from "./state/BlogState.js";
 
 export default class BlogService implements TokenRingService {
@@ -12,24 +14,26 @@ export default class BlogService implements TokenRingService {
 
   registerBlog = this.providers.register;
   getAvailableBlogs = this.providers.getAllItemNames;
+
+  constructor(readonly options: z.output<typeof BlogConfigSchema>) {}
   
   async attach(agent: Agent): Promise<void> {
-    agent.initializeState(BlogState, {});
+    const agentConfig = agent.getAgentConfigSlice('blog', BlogAgentConfigSchema);
+    agent.initializeState(BlogState, agentConfig);
     for (const blog of this.providers.getAllItemValues()) {
       await blog.attach(agent);
     }
   }
 
   requireActiveBlogProvider(agent: Agent): BlogProvider {
-    const { activeBlogName } = agent.getState(BlogState);
-    if (!activeBlogName) {
-      throw new Error("No active blog selected. Use /blog blog select first.");
-    }
-    const activeBlog = this.providers.getItemByName(activeBlogName);
-    if (!activeBlog) {
-      throw new Error(`Blog provider "${activeBlogName}" not found`);
-    }
-    return activeBlog;
+    const activeProvider = agent.getState(BlogState).activeProvider ?? this.options.defaultProvider;
+    return this.providers.requireItemByName(activeProvider);
+  }
+
+  setActiveProvider(name: string, agent: Agent): void {
+    agent.mutateState(BlogState, (state) => {
+      state.activeProvider = name;
+    });
   }
 
   async getAllPosts(agent: Agent): Promise<BlogPost[]> {
