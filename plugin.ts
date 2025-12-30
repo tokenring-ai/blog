@@ -12,7 +12,7 @@ import tools from "./tools.ts";
 
 const packageConfigSchema = z.object({
   blog: BlogConfigSchema.optional()
-}).default({});
+});
 
 export default {
   name: packageJSON.name,
