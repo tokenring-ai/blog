@@ -1,7 +1,7 @@
 import Agent from "@tokenring-ai/agent/Agent";
 import {ImageGenerationModelRegistry} from "@tokenring-ai/ai-client/ModelRegistry";
 import CDNService from "@tokenring-ai/cdn/CDNService";
-import {TokenRingToolDefinition} from "@tokenring-ai/chat/types";
+import {TokenRingToolDefinition} from "@tokenring-ai/chat/schema";
 import {Buffer} from "node:buffer";
 import {v4 as uuid} from "uuid";
 import {z} from "zod";
