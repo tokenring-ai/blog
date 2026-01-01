@@ -1,5 +1,6 @@
 import Agent from "@tokenring-ai/agent/Agent";
 import {TokenRingService} from "@tokenring-ai/app/types";
+import deepMerge from "@tokenring-ai/utility/object/deepMerge";
 import KeyedRegistry from "@tokenring-ai/utility/registry/KeyedRegistry";
 import {z} from "zod";
 import {type BlogPost, BlogProvider, type CreatePostData, type UpdatePostData} from "./BlogProvider.js";
@@ -18,7 +19,7 @@ export default class BlogService implements TokenRingService {
   constructor(readonly options: z.output<typeof BlogConfigSchema>) {}
   
   async attach(agent: Agent): Promise<void> {
-    const agentConfig = agent.getAgentConfigSlice('blog', BlogAgentConfigSchema);
+    const agentConfig = deepMerge(this.options.agentDefaults, agent.getAgentConfigSlice('blog', BlogAgentConfigSchema));
     agent.initializeState(BlogState, agentConfig);
     for (const blog of this.providers.getAllItemValues()) {
       await blog.attach(agent);
@@ -26,7 +27,8 @@ export default class BlogService implements TokenRingService {
   }
 
   requireActiveBlogProvider(agent: Agent): BlogProvider {
-    const activeProvider = agent.getState(BlogState).activeProvider ?? this.options.defaultProvider;
+    const activeProvider = agent.getState(BlogState).activeProvider;
+    if (!activeProvider) throw new Error("No blog provider is currently selected");
     return this.providers.requireItemByName(activeProvider);
   }
 

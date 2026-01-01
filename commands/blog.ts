@@ -18,6 +18,10 @@ Manage blog posts and providers.
 
 ### Provider Management
 
+#### \`provider get\`
+Display the currently active blog provider.
+- Shows which provider is currently selected
+
 #### \`provider select\`
 Select an active blog provider interactively.
 - Opens a selection interface to choose from available providers
@@ -29,7 +33,17 @@ Set a specific blog provider by name.
 - Directly sets the active provider without interactive selection
 - Validates that the provider exists
 
+#### \`provider reset\`
+Reset to the initial configured blog provider.
+- Restores the provider from initial configuration
+- Useful for returning to default settings
+
 ### Post Management
+
+#### \`post get\`
+Display the currently selected post title.
+- Shows which post is currently selected
+- Use \`post info\` for detailed information
 
 #### \`post select\`
 Select an existing article or clear selection.
@@ -66,8 +80,11 @@ Test blog connection by creating a post and uploading an image.
 ## Examples
 
 \`\`\`
+/blog provider get
 /blog provider select
 /blog provider set wordpress
+/blog provider reset
+/blog post get
 /blog post select
 /blog post info
 /blog post clear

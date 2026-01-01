@@ -1,0 +1,14 @@
+import Agent from "@tokenring-ai/agent/Agent";
+import BlogService from "../../../BlogService.ts";
+
+export async function get(remainder: string, agent: Agent): Promise<void> {
+  const blogService = agent.requireServiceByType(BlogService);
+  const currentPost = blogService.getCurrentPost(agent);
+
+  if (!currentPost) {
+    agent.infoLine("No post is currently selected.");
+    return;
+  }
+
+  agent.infoLine(`Current post: ${currentPost.title}`);
+}
