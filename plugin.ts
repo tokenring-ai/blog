@@ -3,12 +3,15 @@ import {TokenRingPlugin} from "@tokenring-ai/app";
 import {ChatService} from "@tokenring-ai/chat";
 import {ScriptingService} from "@tokenring-ai/scripting";
 import {ScriptingThis} from "@tokenring-ai/scripting/ScriptingService";
+import {WebHostService} from "@tokenring-ai/web-host";
+import JsonRpcResource from "@tokenring-ai/web-host/JsonRpcResource";
 import {z} from "zod";
 import BlogService from "./BlogService.ts";
 import chatCommands from "./chatCommands.ts";
 import {BlogConfigSchema} from "./index.ts";
 import packageJSON from './package.json' with {type: 'json'};
 import tools from "./tools.ts";
+import blogRPC from "./rpc/blog.ts";
 
 const packageConfigSchema = z.object({
   blog: BlogConfigSchema.optional()
@@ -71,6 +74,10 @@ export default {
     app.waitForService(AgentCommandService, agentCommandService =>
       agentCommandService.addAgentCommands(chatCommands)
     );
+
+    app.waitForService(WebHostService, webHostService => {
+      webHostService.registerResource("Blog RPC endpoint", new JsonRpcResource(app, blogRPC));
+    });
   },
   config: packageConfigSchema
 } satisfies TokenRingPlugin<typeof packageConfigSchema>;
