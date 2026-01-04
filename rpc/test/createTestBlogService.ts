@@ -1,3 +1,5 @@
+import TokenRingApp from "@tokenring-ai/app";
+import {BlogProvider} from "../../BlogProvider";
 import BlogService from "../../BlogService.js";
 import {BlogConfigSchema} from "../../schema.ts";
 import {Agent} from "@tokenring-ai/agent";
@@ -15,15 +17,14 @@ const testConfig = {
 };
 
 // Mock Test Blog Provider
-class TestBlogProvider {
-  name = 'test';
+class TestBlogProvider implements BlogProvider {
   description = 'Test Blog';
   posts: any[] = [];
   currentPostId: string | null = null;
   imageGenerationModel = 'test-model';
   cdnName = 'test-cdn';
 
-  async attach(agent: Agent): Promise<void> {
+  attach(agent: Agent): void {
     // Initialize test posts
     this.posts = [
       {
@@ -106,12 +107,17 @@ class TestBlogProvider {
 }
 
 // Create a test instance of BlogService
-export default function createTestBlogService() {
-  const blogService = new BlogService(BlogConfigSchema.parse(testConfig));
-  
-  // Register the test provider
-  const testProvider = new TestBlogProvider();
-  blogService.registerBlog(testProvider as any);
-  
-  return { blogService, testProvider };
+export default function createTestBlogService(app: TokenRingApp) {
+  let blogService = app.getService(BlogService);
+  if (!blogService) {
+    blogService = new BlogService(BlogConfigSchema.parse(testConfig));
+
+    app.addServices(blogService);
+
+    // Register the test provider
+    const testProvider = new TestBlogProvider();
+    blogService.registerBlog("test", testProvider);
+  }
+
+  return { blogService, testProvider: blogService.providers.requireItemByName("test") };
 }
