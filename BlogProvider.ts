@@ -26,7 +26,7 @@ export interface BlogProvider {
   imageGenerationModel: string;
   cdnName: string;
 
-  attach(agent: Agent): Promise<void>;
+  attach(agent: Agent): void;
 
   getAllPosts(agent: Agent): Promise<BlogPost[]>;
 

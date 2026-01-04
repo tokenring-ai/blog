@@ -18,11 +18,11 @@ export default class BlogService implements TokenRingService {
 
   constructor(readonly options: z.output<typeof BlogConfigSchema>) {}
   
-  async attach(agent: Agent): Promise<void> {
+  attach(agent: Agent): void {
     const agentConfig = deepMerge(this.options.agentDefaults, agent.getAgentConfigSlice('blog', BlogAgentConfigSchema));
     agent.initializeState(BlogState, agentConfig);
     for (const blog of this.providers.getAllItemValues()) {
-      await blog.attach(agent);
+      blog?.attach(agent);
     }
   }
 
@@ -54,7 +54,12 @@ export default class BlogService implements TokenRingService {
   }
 
   getCurrentPost(agent: Agent): BlogPost | null {
-    const activeBlog = this.requireActiveBlogProvider(agent)
+    const activeProvider = agent.getState(BlogState).activeProvider;
+    if (!activeProvider) return null;
+    
+    const activeBlog = this.providers.getItemByName(activeProvider);
+    if (!activeBlog) return null;
+    
     return activeBlog.getCurrentPost(agent);
   }
 
