@@ -13,7 +13,7 @@ export class BlogState implements AgentStateSlice {
   }
 
   transferStateFromParent(parent: Agent): void {
-    this.activeProvider = parent.getState(BlogState).activeProvider;
+    this.activeProvider ??= parent.getState(BlogState).activeProvider;
   }
 
   reset(what: ResetWhat[]): void {}
