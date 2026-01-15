@@ -78,17 +78,17 @@ export default class BlogService implements TokenRingService {
 
     const currentPost = activeBlog.getCurrentPost(agent);
     if (!currentPost) {
-      agent.infoLine("No post is currently selected.");
-      agent.infoLine("Use /blog post select to choose a post.");
+      agent.infoMessage("No post is currently selected.");
+      agent.infoMessage("Use /blog post select to choose a post.");
       return;
     }
 
     if (currentPost.status === "published") {
-      agent.infoLine(`Post "${currentPost.title}" is already published.`);
+      agent.infoMessage(`Post "${currentPost.title}" is already published.`);
       return;
     }
 
     await activeBlog.updatePost({ status: "published" }, agent);
-    agent.infoLine(`Post "${currentPost.title}" has been published.`);
+    agent.infoMessage(`Post "${currentPost.title}" has been published.`);
   }
 }

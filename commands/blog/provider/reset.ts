@@ -8,8 +8,8 @@ export async function reset(_remainder: string, agent: Agent): Promise<void> {
   
   if (initialProvider) {
     blogService.setActiveProvider(initialProvider, agent);
-    agent.infoLine(`Provider reset to ${initialProvider}`);
+    agent.infoMessage(`Provider reset to ${initialProvider}`);
   } else {
-    agent.errorLine("No initial provider configured");
+    agent.errorMessage("No initial provider configured");
   }
 }

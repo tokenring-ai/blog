@@ -26,7 +26,7 @@ async function execute(
 
   const updatedPost = await blogService.updatePost(update,agent);
 
-  agent.infoLine(`[${name}] Post updated with ID: ${updatedPost.id}`);
+  agent.infoMessage(`[${name}] Post updated with ID: ${updatedPost.id}`);
   return updatedPost;
 }
 

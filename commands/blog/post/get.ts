@@ -6,9 +6,9 @@ export async function get(remainder: string, agent: Agent): Promise<void> {
   const currentPost = blogService.getCurrentPost(agent);
 
   if (!currentPost) {
-    agent.infoLine("No post is currently selected.");
+    agent.infoMessage("No post is currently selected.");
     return;
   }
 
-  agent.infoLine(`Current post: ${currentPost.title}`);
+  agent.infoMessage(`Current post: ${currentPost.title}`);
 }

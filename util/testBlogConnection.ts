@@ -13,24 +13,24 @@ export async function testBlogConnection(
     const activeBlog = blogService.requireActiveBlogProvider(agent);
     const cdnService = agent.requireServiceByType(CDNService);
 
-    agent.infoLine("🧪 Testing blog connection...");
+    agent.infoMessage("🧪 Testing blog connection...");
 
     // 1. List current posts
-    agent.infoLine("📋 Listing current posts...");
+    agent.infoMessage("📋 Listing current posts...");
     const posts = await blogService.getAllPosts(agent);
-    agent.infoLine(`Found ${posts.length} existing posts`);
+    agent.infoMessage(`Found ${posts.length} existing posts`);
 
     // 2. Create test post
-    agent.infoLine("📝 Creating test post...");
+    agent.infoMessage("📝 Creating test post...");
     const testPost = await blogService.createPost({
       title: `Blog Test - ${new Date().toISOString()}`,
       content: "<p>This is a test post to validate blog connectivity.</p>",
       tags: ["test"]
     }, agent);
-    agent.infoLine(`Test post created with ID: ${testPost.id}`);
+    agent.infoMessage(`Test post created with ID: ${testPost.id}`);
 
     // 3. Upload hello.png image
-    agent.infoLine("🖼️ Uploading hello.png image...");
+    agent.infoMessage("🖼️ Uploading hello.png image...");
     const imagePath = resolve(import.meta.dirname, "..", "hello.png");
     const imageBuffer = readFileSync(imagePath);
     const filename = `test-${uuid()}.png`;
@@ -39,20 +39,20 @@ export async function testBlogConnection(
       filename,
       contentType: "image/png",
     });
-    agent.infoLine(`Image uploaded: ${uploadResult.url}, id: ${uploadResult.id}`);
+    agent.infoMessage(`Image uploaded: ${uploadResult.url}, id: ${uploadResult.id}`);
 
     // 4. Update post with image
-    agent.infoLine("🔄 Updating post with image...");
+    agent.infoMessage("🔄 Updating post with image...");
     await blogService.updatePost({
       feature_image: {
         id: uploadResult.id,
         url: uploadResult.url
       }
     }, agent);
-    agent.infoLine(`Post updated with featured image`);
+    agent.infoMessage(`Post updated with featured image`);
 
-    agent.infoLine("✅ Blog connection test completed successfully!");
+    agent.infoMessage("✅ Blog connection test completed successfully!");
   } catch (error) {
-    agent.errorLine("❌ Blog connection test failed:", error as Error);
+    agent.errorMessage("❌ Blog connection test failed:", error as Error);
   }
 }

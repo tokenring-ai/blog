@@ -11,7 +11,7 @@ export async function select(remainder: string, agent: Agent): Promise<void> {
     const posts = await blogService.getAllPosts(agent);
 
     if (!posts || posts.length === 0) {
-      agent.infoLine(`No posts found on ${activeProvider}.`);
+      agent.infoMessage(`No posts found on ${activeProvider}.`);
       return;
     }
 
@@ -41,18 +41,18 @@ export async function select(remainder: string, agent: Agent): Promise<void> {
     if (selectedValue) {
       if (selectedValue === "none") {
         await blogService.clearCurrentPost(agent);
-        agent.infoLine("Post selection cleared.");
+        agent.infoMessage("Post selection cleared.");
       } else {
         const selectedPost = formattedPosts.find(post => post.value === selectedValue);
         if (selectedPost?.data) {
           await blogService.selectPostById(selectedPost.data.id, agent);
-          agent.infoLine(`Selected post: "${selectedPost.data.title}"`);
+          agent.infoMessage(`Selected post: "${selectedPost.data.title}"`);
         }
       }
     } else {
-      agent.infoLine("Post selection cancelled.");
+      agent.infoMessage("Post selection cancelled.");
     }
   } catch (error) {
-    agent.errorLine("Error during post selection:", error as Error);
+    agent.errorMessage("Error during post selection:", error as Error);
   }
 }

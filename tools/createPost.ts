@@ -28,7 +28,7 @@ async function execute(
     tags
   },agent);
 
-  agent.infoLine(`[${name}] Post created with ID: ${post.id}`);
+  agent.infoMessage(`[${name}] Post created with ID: ${post.id}`);
   return post;
 }
 

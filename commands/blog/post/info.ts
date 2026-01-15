@@ -8,8 +8,8 @@ export async function info(remainder: string, agent: Agent): Promise<void> {
   const currentPost = blogService.getCurrentPost(agent);
 
   if (!currentPost) {
-    agent.infoLine("No post is currently selected.");
-    agent.infoLine("Use /blog post select to choose a post.");
+    agent.infoMessage("No post is currently selected.");
+    agent.infoMessage("Use /blog post select to choose a post.");
     return;
   }
 
@@ -19,7 +19,7 @@ export async function info(remainder: string, agent: Agent): Promise<void> {
     ? currentPost.content.replace(/<[^>]*>/g, " ").split(/\s+/).filter(Boolean).length
     : 0;
 
-  const infoLines = [
+  const infoMessages = [
     `Blog: ${activeProvider}`,
     `Title: ${currentPost.title}`,
     `Status: ${currentPost.status}`,
@@ -29,12 +29,12 @@ export async function info(remainder: string, agent: Agent): Promise<void> {
   ];
 
   if (currentPost.tags && currentPost.tags.length > 0) {
-    infoLines.push(`Tags: ${currentPost.tags.join(", ")}`);
+    infoMessages.push(`Tags: ${currentPost.tags.join(", ")}`);
   }
 
   if (currentPost.url) {
-    infoLines.push(`URL: ${currentPost.url}`);
+    infoMessages.push(`URL: ${currentPost.url}`);
   }
 
-  agent.infoLine(infoLines.join("\n"));
+  agent.infoMessage(infoMessages.join("\n"));
 }

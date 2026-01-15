@@ -7,13 +7,13 @@ export async function select(remainder: string, agent: Agent): Promise<void> {
   const availableBlogs = blogService.getAvailableBlogs();
 
   if (availableBlogs.length === 0) {
-    agent.infoLine("No blog providers are registered.");
+    agent.infoMessage("No blog providers are registered.");
     return;
   }
 
   if (availableBlogs.length === 1) {
     blogService.setActiveProvider(availableBlogs[0], agent);
-    agent.infoLine(`Only one provider configured, auto-selecting: ${availableBlogs[0]}`);
+    agent.infoMessage(`Only one provider configured, auto-selecting: ${availableBlogs[0]}`);
     return;
   }
 
@@ -32,8 +32,8 @@ export async function select(remainder: string, agent: Agent): Promise<void> {
 
   if (selectedValue) {
     blogService.setActiveProvider(selectedValue, agent);
-    agent.infoLine(`Active provider set to: ${selectedValue}`);
+    agent.infoMessage(`Active provider set to: ${selectedValue}`);
   } else {
-    agent.infoLine("Provider selection cancelled.");
+    agent.infoMessage("Provider selection cancelled.");
   }
 }

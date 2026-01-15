@@ -27,7 +27,7 @@ async function execute(
     throw new Error(`No post currently selected`);
   }
 
-  agent.infoLine(`[${name}] Generating image for post "${currentPost.title}"`);
+  agent.infoMessage(`[${name}] Generating image for post "${currentPost.title}"`);
 
   const imageClient = await imageModelRegistry.getClient(activeBlog.imageGenerationModel);
 
@@ -51,7 +51,7 @@ async function execute(
     contentType: imageResult.mediaType,
   });
 
-  agent.infoLine(`[${name}] Image uploaded: ${uploadResult.url}`);
+  agent.infoMessage(`[${name}] Image uploaded: ${uploadResult.url}`);
 
   // Update the current post with the featured image
   await blogService.updatePost({
