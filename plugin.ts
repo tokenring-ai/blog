@@ -10,8 +10,8 @@ import BlogService from "./BlogService.ts";
 import chatCommands from "./chatCommands.ts";
 import {BlogConfigSchema} from "./index.ts";
 import packageJSON from './package.json' with {type: 'json'};
-import tools from "./tools.ts";
 import blogRPC from "./rpc/blog.ts";
+import tools from "./tools.ts";
 
 const packageConfigSchema = z.object({
   blog: BlogConfigSchema.optional()

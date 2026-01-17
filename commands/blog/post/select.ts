@@ -1,5 +1,5 @@
 import Agent from "@tokenring-ai/agent/Agent";
-import type {BlogPost} from "../../../BlogProvider.ts";
+import type {TreeLeaf} from "@tokenring-ai/agent/question";
 import BlogService from "../../../BlogService.ts";
 import {BlogState} from "../../../state/BlogState.ts";
 
@@ -15,39 +15,34 @@ export async function select(remainder: string, agent: Agent): Promise<void> {
       return;
     }
 
-    const formattedPosts = posts.map((post) => {
+    const formattedPosts: TreeLeaf[] = posts.map((post) => {
       const date = new Date(post.updated_at).toLocaleDateString();
       const status = post.status === "published" ? "📝" : "🔒";
       return {
         name: `${status} ${post.title} (${date})`,
         value: post.id,
-        data: post,
       };
     });
 
-    formattedPosts.unshift({
-      name: "❌ Clear selection",
-      value: "none",
-      data: null as unknown as BlogPost
-    });
-
-    const selectedValue = await agent.askHuman({
-      type: "askForSingleTreeSelection",
-      title: "Post Selection",
+    const selection = await agent.askQuestion({
       message: `Choose a post to work with or select 'Clear selection' to start fresh`,
-      tree: {name: `${activeProvider} Posts`, children: formattedPosts}
+      question: {
+        type: 'treeSelect',
+        label: "Post Selection",
+        key: "result",
+        minimumSelections: 1,
+        maximumSelections: 1,
+        tree: formattedPosts
+      }
     });
 
-    if (selectedValue) {
-      if (selectedValue === "none") {
+    if (selection) {
+      if (selection.length === 0) {
         await blogService.clearCurrentPost(agent);
         agent.infoMessage("Post selection cleared.");
       } else {
-        const selectedPost = formattedPosts.find(post => post.value === selectedValue);
-        if (selectedPost?.data) {
-          await blogService.selectPostById(selectedPost.data.id, agent);
-          agent.infoMessage(`Selected post: "${selectedPost.data.title}"`);
-        }
+        const post = await blogService.selectPostById(selection[0], agent);
+        agent.infoMessage(`Selected post: "${post.title}"`);
       }
     } else {
       agent.infoMessage("Post selection cancelled.");

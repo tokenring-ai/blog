@@ -1,9 +1,8 @@
+import {Agent} from "@tokenring-ai/agent";
 import TokenRingApp from "@tokenring-ai/app";
 import {BlogProvider} from "../../BlogProvider";
 import BlogService from "../../BlogService.js";
 import {BlogConfigSchema} from "../../schema.ts";
-import {Agent} from "@tokenring-ai/agent";
-import {z} from "zod";
 
 // Test configuration for BlogService
 const testConfig = {

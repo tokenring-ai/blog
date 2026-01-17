@@ -1,16 +1,16 @@
-import createTestingAgent from "@tokenring-ai/agent/test/createTestingAgent";
-import createTestingApp from "@tokenring-ai/app/test/createTestingApp";
-import {beforeEach, describe, expect, it, vi} from 'vitest';
 import {Agent, AgentManager} from "@tokenring-ai/agent";
-import TokenRingApp from "@tokenring-ai/app";
-import {BlogProvider} from "../../BlogProvider";
-import blogRPC from "../blog.js";
-import createTestBlogService from "./createTestBlogService.js";
+import createTestingAgent from "@tokenring-ai/agent/test/createTestingAgent";
 import {ImageGenerationModelRegistry} from "@tokenring-ai/ai-client/ModelRegistry";
+import TokenRingApp from "@tokenring-ai/app";
+import createTestingApp from "@tokenring-ai/app/test/createTestingApp";
 import CDNService from "@tokenring-ai/cdn/CDNService";
+import {GeneratedFile} from "ai";
+import {beforeEach, describe, expect, it, vi} from 'vitest';
+import {BlogProvider} from "../../BlogProvider";
 import BlogService from "../../BlogService.js";
 import {BlogState} from "../../state/BlogState.js";
-import { GeneratedFile } from "ai";
+import blogRPC from "../blog.js";
+import createTestBlogService from "./createTestBlogService.js";
 
 /**
  * Test suite for Blog RPC endpoints

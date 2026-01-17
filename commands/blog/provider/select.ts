@@ -1,4 +1,5 @@
 import Agent from "@tokenring-ai/agent/Agent";
+import type {TreeLeaf} from "@tokenring-ai/agent/question";
 import BlogService from "../../../BlogService.ts";
 import {BlogState} from "../../../state/BlogState.ts";
 
@@ -18,19 +19,26 @@ export async function select(remainder: string, agent: Agent): Promise<void> {
   }
 
   const activeProvider = agent.getState(BlogState).activeProvider;
-  const formattedBlogs = availableBlogs.map(name => ({
+  const formattedBlogs: TreeLeaf[] = availableBlogs.map(name => ({
     name: `${name}${name === activeProvider ? " (current)" : ""}`,
     value: name,
   }));
 
-  const selectedValue = await agent.askHuman({
-    type: "askForSingleTreeSelection",
-    title: "Blog Provider Selection",
+  const selection = await agent.askQuestion({
     message: "Select an active blog provider",
-    tree: {name: "Available Providers", children: formattedBlogs}
+    question: {
+      type: 'treeSelect',
+      label: "Blog Provider Selection",
+      key: "result",
+      defaultValue: activeProvider ? [activeProvider] : undefined,
+      minimumSelections: 1,
+      maximumSelections: 1,
+      tree: formattedBlogs
+    }
   });
 
-  if (selectedValue) {
+  if (selection) {
+    const selectedValue = selection[0];
     blogService.setActiveProvider(selectedValue, agent);
     agent.infoMessage(`Active provider set to: ${selectedValue}`);
   } else {
