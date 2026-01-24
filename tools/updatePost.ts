@@ -6,6 +6,7 @@ import {UpdatePostData} from "../BlogProvider.js";
 import BlogService from "../BlogService.ts";
 
 const name = "blog_updatePost";
+const displayName = "Blog/updatePost";
 
 async function execute(
   {title, contentInMarkdown, tags}: z.infer<typeof inputSchema>,
@@ -44,5 +45,5 @@ const inputSchema = z.object({
 });
 
 export default {
-  name, description, inputSchema, execute,
+  name, displayName, description, inputSchema, execute,
 } satisfies TokenRingToolDefinition<typeof inputSchema>;

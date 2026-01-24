@@ -4,6 +4,7 @@ import {z} from "zod";
 import BlogService from "../BlogService.ts";
 
 const name = "blog_getCurrentPost";
+const displayName = "Blog/getCurrentPost";
 
 async function execute(
   {}: z.infer<typeof inputSchema>,
@@ -32,5 +33,5 @@ const description = "Get the currently selected post from a blog service";
 const inputSchema = z.object({});
 
 export default {
-  name, description, inputSchema, execute,
+  name, displayName, description, inputSchema, execute,
 } satisfies TokenRingToolDefinition<typeof inputSchema>;

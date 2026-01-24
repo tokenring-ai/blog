@@ -8,6 +8,7 @@ import {z} from "zod";
 import BlogService from "../BlogService.ts";
 
 const name = "blog_generateImageForPost";
+const displayName = "Blog/generateImageForPost";
 
 async function execute(
   {prompt, aspectRatio = "square"}: z.infer<typeof inputSchema>,
@@ -76,5 +77,5 @@ const inputSchema = z.object({
 });
 
 export default {
-  name, description, inputSchema, execute,
+  name, displayName, description, inputSchema, execute,
 } satisfies TokenRingToolDefinition<typeof inputSchema>;
