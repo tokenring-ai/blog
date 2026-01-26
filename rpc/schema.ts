@@ -1,4 +1,4 @@
-import {JsonRPCSchema} from "@tokenring-ai/web-host/jsonrpc/types";
+import {RPCSchema} from "@tokenring-ai/rpc/types";
 import {z} from "zod";
 
 const BlogPostSchema = z.object({
@@ -18,6 +18,7 @@ const BlogPostSchema = z.object({
 });
 
 export default {
+  name: "Blog RPC",
   path: "/rpc/blog",
   methods: {
     getCurrentPost: {
@@ -142,4 +143,4 @@ export default {
       })
     },
   }
-} satisfies JsonRPCSchema;
+} satisfies RPCSchema;

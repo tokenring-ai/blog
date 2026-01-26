@@ -2,14 +2,14 @@ import {AgentManager} from "@tokenring-ai/agent";
 import {ImageGenerationModelRegistry} from "@tokenring-ai/ai-client/ModelRegistry";
 import TokenRingApp from "@tokenring-ai/app";
 import CDNService from "@tokenring-ai/cdn/CDNService";
-import {createJsonRPCEndpoint} from "@tokenring-ai/web-host/jsonrpc/createJsonRPCEndpoint";
+import {createRPCEndpoint} from "@tokenring-ai/rpc/createRPCEndpoint";
 import {marked} from "marked";
 import {Buffer} from "node:buffer";
 import {v4 as uuid} from "uuid";
 import BlogService from "../BlogService.js";
 import BlogRpcSchema from "./schema.ts";
 
-export default createJsonRPCEndpoint(BlogRpcSchema, {
+export default createRPCEndpoint(BlogRpcSchema, {
   async getCurrentPost(args, app: TokenRingApp) {
     const agent = app.requireService(AgentManager).getAgent(args.agentId);
     if (!agent) throw new Error("Agent not found");
