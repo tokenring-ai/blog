@@ -11,15 +11,12 @@ const name = "blog_generateImageForPost";
 const displayName = "Blog/generateImageForPost";
 
 async function execute(
-  {prompt, aspectRatio = "square"}: z.infer<typeof inputSchema>,
+  {prompt, aspectRatio = "square"}: z.output<typeof inputSchema>,
   agent: Agent,
 ) {
   const blogService = agent.requireServiceByType(BlogService);
   const cdnService = agent.requireServiceByType(CDNService);
   const imageModelRegistry = agent.requireServiceByType(ImageGenerationModelRegistry);
-  if (!prompt) {
-    throw new Error("Prompt is required");
-  }
 
   const activeBlog = blogService.requireActiveBlogProvider(agent);
 
@@ -63,9 +60,12 @@ async function execute(
   },agent);
 
   return {
-    success: true,
-    imageUrl: uploadResult.url,
-    message: `Image generated and set as featured image for post "${currentPost.title}"`,
+    type: 'json' as const,
+    data: {
+      success: true,
+      imageUrl: uploadResult.url,
+      message: `Image generated and set as featured image for post "${currentPost.title}"`,
+    }
   };
 }
 

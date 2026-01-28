@@ -9,7 +9,7 @@ const name = "blog_updatePost";
 const displayName = "Blog/updatePost";
 
 async function execute(
-  {title, contentInMarkdown, tags}: z.infer<typeof inputSchema>,
+  {title, contentInMarkdown, tags}: z.output<typeof inputSchema>,
   agent: Agent,
 ) {
   const blogService = agent.requireServiceByType(BlogService);
@@ -28,7 +28,7 @@ async function execute(
   const updatedPost = await blogService.updatePost(update,agent);
 
   agent.infoMessage(`[${name}] Post updated with ID: ${updatedPost.id}`);
-  return updatedPost;
+  return { type: 'json' as const, data: updatedPost };
 }
 
 const description = "Update the currently selected blog post";

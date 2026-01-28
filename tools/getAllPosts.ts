@@ -7,7 +7,7 @@ const name = "blog_getAllPosts";
 const displayName = "Blog/getAllPosts";
 
 async function execute(
-  {status = "all", tag, limit = 10}: z.infer<typeof inputSchema>,
+  {status = "all", tag, limit = 10}: z.output<typeof inputSchema>,
   agent: Agent,
 ) {
   const blogService = agent.requireServiceByType(BlogService);
@@ -28,11 +28,14 @@ async function execute(
   const currentPost = blogService.getCurrentPost(agent);
 
   return {
-    success: true,
-    posts: limitedPosts,
-    message: `Found ${posts.length} posts${posts.length > limit ? `, showing ${limit}` : ""}`,
-    count: posts.length,
-    currentlySelected: currentPost?.id || null,
+    type: 'json' as const,
+    data: {
+      success: true,
+      posts: limitedPosts,
+      message: `Found ${posts.length} posts${posts.length > limit ? `, showing ${limit}` : ""}`,
+      count: posts.length,
+      currentlySelected: currentPost?.id || null,
+    }
   };
 }
 

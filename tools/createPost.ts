@@ -8,16 +8,9 @@ const name = "blog_createPost";
 const displayName = "Blog/createPost";
 
 async function execute(
-  {title, contentInMarkdown, tags}: z.infer<typeof inputSchema>,
+  {title, contentInMarkdown, tags}: z.output<typeof inputSchema>,
   agent: Agent,
 ) {
-  if (!title) {
-    throw new Error("Title is required");
-  }
-  if (!contentInMarkdown) {
-    throw new Error("Content is required");
-  }
-
   const blogService = agent.requireServiceByType(BlogService);
 
   // Strip the header from the post;
@@ -30,7 +23,7 @@ async function execute(
   },agent);
 
   agent.infoMessage(`[${name}] Post created with ID: ${post.id}`);
-  return post;
+  return { type: 'json' as const, data: post };
 }
 
 const description = "Create a new blog post";

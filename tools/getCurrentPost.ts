@@ -7,7 +7,7 @@ const name = "blog_getCurrentPost";
 const displayName = "Blog/getCurrentPost";
 
 async function execute(
-  {}: z.infer<typeof inputSchema>,
+  {}: z.output<typeof inputSchema>,
   agent: Agent,
 ) {
   const blogService = agent.requireServiceByType(BlogService);
@@ -15,16 +15,22 @@ async function execute(
 
   if (!currentPost) {
     return {
-      success: false,
-      error: "No post is currently selected",
-      suggestion: "Select a post first using the selectPost tool",
+      type: 'json' as const,
+      data: {
+        success: false,
+        error: "No post is currently selected",
+        suggestion: "Select a post first using the selectPost tool",
+      }
     };
   }
 
   return {
-    success: true,
-    post: currentPost,
-    message: `Currently selected: "${currentPost.title}" (${currentPost.status})`,
+    type: 'json' as const,
+    data: {
+      success: true,
+      post: currentPost,
+      message: `Currently selected: "${currentPost.title}" (${currentPost.status})`,
+    }
   };
 }
 
