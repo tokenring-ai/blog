@@ -227,9 +227,9 @@ Create a new blog post.
 **Input Schema:**
 ```typescript
 {
-  title: string;              // Required
-  contentInMarkdown: string;  // Required - Markdown content (title excluded)
-  tags?: string[];            // Optional tags
+  title: string;              // Required - Title of the blog post
+  contentInMarkdown: string;  // Required - The content of the post in Markdown format. The title of the post goes in the title tag, NOT inside the content
+  tags?: string[];            // Optional - Tags for the post
 }
 ```
 
@@ -239,10 +239,8 @@ Create a new blog post.
 - Throws error if title or content is missing
 
 **Response:** BlogPost object
-
 ```typescript
 {
-  success: true,
   id: string;
   title: string;
   content?: string;
@@ -266,9 +264,9 @@ Update the currently selected blog post.
 **Input Schema:**
 ```typescript
 {
-  title?: string;              // Optional - New title
-  contentInMarkdown?: string;  // Optional - New Markdown content
-  tags?: string[];            // Optional - New tags
+  title?: string;              // Optional - New title for the post
+  contentInMarkdown?: string;  // Optional - The content of the post in Markdown format. The title of the post goes in the title tag, NOT inside the content
+  tags?: string[];            // Optional - New tags for the post
 }
 ```
 
@@ -287,17 +285,16 @@ Retrieve all posts from the active blog provider.
 **Input Schema:**
 ```typescript
 {
-  status?: "draft" | "published";  // Filter by status (default: "all")
-  tag?: string;                    // Filter by tag name
-  limit?: number;                  // Maximum results (default: 10)
+  status?: "draft" | "published" | "all";  // Filter by status (default: "all")
+  tag?: string;                            // Filter by tag name
+  limit?: number;                          // Maximum results (default: 10)
 }
 ```
 
 **Response:** BlogPost[] with metadata
-
 ```typescript
 {
-  success: true,
+  success: true;
   posts: BlogPost[];
   message: string;
   count: number;                  // Total matching posts
@@ -315,7 +312,6 @@ Get the currently selected blog post.
 ```
 
 **Response:** BlogPost or error object
-
 ```typescript
 {
   success: true,
@@ -340,8 +336,8 @@ Generate an AI image and set it as the featured image for the currently selected
 **Input Schema:**
 ```typescript
 {
-  prompt: string;              // Required - Image description
-  aspectRatio?: "square" | "tall" | "wide";  // Optional - Image dimensions
+  prompt: string;              // Required - Description of the image to generate
+  aspectRatio?: "square" | "tall" | "wide";  // Optional - Image dimensions (default: "square")
 }
 ```
 
@@ -576,7 +572,7 @@ class CustomBlogProvider implements BlogProvider {
     // Fetch posts from your platform's API
     const response = await fetch('https://api.yourblog.com/posts');
     const rawData = await response.json();
-    
+
     // Convert platform-specific structure to BlogPost format
     return rawData.map(mapPlatformPostToBlogPost);
   }
@@ -767,7 +763,7 @@ export default {
         params: ['title', 'content'],
         async execute(this: ScriptingThis, title: string, content: string): Promise<string> {
           const post = await this.agent.requireServiceByType(BlogService).createPost(
-            {title, content}, 
+            {title, content},
             this.agent
           );
           return `Created post: ${post.id}`;
@@ -927,8 +923,8 @@ const wideImage = await imageClient.generateImage({
 
 // Upload to CDN
 const uploadResult = await cdnService.upload(
-  activeBlog.cdnName, 
-  Buffer.from(squareImage.uint8Array), 
+  activeBlog.cdnName,
+  Buffer.from(squareImage.uint8Array),
   {
     filename: `${uuid()}.${squareImage.mediaType.split("/")[1]}`,
     contentType: squareImage.mediaType,
@@ -961,29 +957,29 @@ const blogRpc = createRPCEndpoint(BlogRpcSchema, {
   async getAllPosts(args, app) {
     const agent = app.requireService(AgentManager).getAgent(args.agentId);
     const blogService = app.requireService(BlogService);
-    
+
     let posts = await blogService.getAllPosts(agent);
-    
+
     // Apply filtering
     if (args.status && args.status !== "all") {
       posts = posts.filter(post => post.status === args.status);
     }
-    
+
     return {
       posts: posts.slice(0, args.limit || 10)
     };
   },
-  
+
   async createPost(args, app) {
     const agent = app.requireService(AgentManager).getAgent(args.agentId);
     const blogService = app.requireService(BlogService);
-    
+
     const post = await blogService.createPost({
       title: args.title,
       content: args.contentInMarkdown, // Already processed to HTML
       tags: args.tags
     }, agent);
-    
+
     return { post, message: `Post created: ${post.id}` };
   }
 });
@@ -1053,7 +1049,7 @@ try {
 try {
   await blogService.requireActiveBlogProvider(agent);
   const posts = await blogService.getAllPosts(agent);
-  
+
   if (posts.length === 0) {
     agent.infoMessage("No posts found. Create a new post first.");
   } else {
