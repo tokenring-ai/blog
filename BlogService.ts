@@ -8,7 +8,7 @@ import {BlogAgentConfigSchema, BlogConfigSchema} from "./schema.ts";
 import {BlogState} from "./state/BlogState.js";
 
 export default class BlogService implements TokenRingService {
-  name = "BlogService";
+  readonly name = "BlogService";
   description = "Abstract interface for blog operations";
 
   private providers = new KeyedRegistry<BlogProvider>();
