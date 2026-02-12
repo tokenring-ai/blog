@@ -20,6 +20,12 @@ export type CreatePostData = Omit<BlogPost, 'id' | 'created_at' | 'updated_at' |
 
 export type UpdatePostData = Partial<Omit<BlogPost, 'id' | 'created_at' | 'updated_at'>>;
 
+export type BlogPostFilterOptions = {
+  keyword?: string;
+  limit?: number;
+  status?: 'draft' | 'published' | 'scheduled' | 'pending' | 'private';
+}
+
 export interface BlogProvider {
   description: string;
   
@@ -29,6 +35,8 @@ export interface BlogProvider {
   attach(agent: Agent): void;
 
   getAllPosts(agent: Agent): Promise<BlogPost[]>;
+
+  getRecentPosts(filter: BlogPostFilterOptions, agent: Agent): Promise<BlogPost[]>;
 
   createPost(data: CreatePostData, agent: Agent): Promise<BlogPost>;
 

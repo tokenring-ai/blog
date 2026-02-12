@@ -1,9 +1,11 @@
 import Agent from "@tokenring-ai/agent/Agent";
 import {TokenRingService} from "@tokenring-ai/app/types";
+import type {CommunicationChannel} from "@tokenring-ai/escalation/EscalationProvider";
+import {EscalationService} from "@tokenring-ai/escalation";
 import deepMerge from "@tokenring-ai/utility/object/deepMerge";
 import KeyedRegistry from "@tokenring-ai/utility/registry/KeyedRegistry";
 import {z} from "zod";
-import {type BlogPost, BlogProvider, type CreatePostData, type UpdatePostData} from "./BlogProvider.js";
+import {type BlogPost, type BlogPostFilterOptions, BlogProvider, type CreatePostData, type UpdatePostData} from "./BlogProvider.js";
 import {BlogAgentConfigSchema, BlogConfigSchema} from "./schema.ts";
 import {BlogState} from "./state/BlogState.js";
 
@@ -41,6 +43,11 @@ export default class BlogService implements TokenRingService {
   async getAllPosts(agent: Agent): Promise<BlogPost[]> {
     const activeBlog = this.requireActiveBlogProvider(agent);
     return activeBlog.getAllPosts(agent);
+  }
+
+  async getRecentPosts(filter: BlogPostFilterOptions, agent: Agent): Promise<BlogPost[]> {
+    const activeBlog = this.requireActiveBlogProvider(agent);
+    return activeBlog.getRecentPosts(filter, agent);
   }
 
   async createPost(data: CreatePostData, agent: Agent): Promise<BlogPost> {
@@ -85,7 +92,58 @@ export default class BlogService implements TokenRingService {
 
     if (currentPost.status === "published") {
       agent.infoMessage(`Post "${currentPost.title}" is already published.`);
-      return;
+      //return;
+    }
+
+    const state = agent.getState(BlogState);
+    
+    // Check review patterns
+    if (state.reviewPatterns && state.reviewPatterns.length > 0 && currentPost.content) {
+      for (const pattern of state.reviewPatterns) {
+        const regex = new RegExp(pattern, 'i');
+        if (regex.test(currentPost.content)) {
+          agent.infoMessage(`Post "${currentPost.title}" requires review (matched pattern: ${pattern})`);
+          
+          if (state.reviewEscalationTarget) {
+            const escalationService = agent.requireServiceByType(EscalationService);
+
+            if (escalationService) {
+              const message = `
+Post "${currentPost.title}" matched pattern: ${pattern} and requires review before publishing.
+URL: ${currentPost.url || 'N/A'}
+To publish this post, please reply with "approve" or "reject".
+              `.trim();
+
+              const channel: CommunicationChannel = await escalationService.initiateContactWithUser(state.reviewEscalationTarget, agent);
+
+              await channel.send(message);
+              agent.infoMessage(`Escalation sent to ${state.reviewEscalationTarget}`);
+
+              for await (const response of channel.receive()) {
+                switch (response.trim().toLowerCase()) {
+                  case "approve": {
+                    await activeBlog.updatePost({status: "published"}, agent);
+                    agent.infoMessage(`Post "${currentPost.title}" has been published.`);
+                    await channel.send(`Post "${currentPost.title}" has been published.`);
+                    await channel.close();
+                  } break;
+                  case "reject": {
+                    agent.infoMessage(`Post "${currentPost.title}" has not been published.`);
+                    await channel.send(`Post "${currentPost.title}" has not been published.`);
+                    await channel.close();
+                  } break;
+                  default:
+                    agent.infoMessage(`Unknown response received: ${response}`);
+                    await channel.send(`The only valid responses are "approve" or "reject". Please try again.`);
+                }
+              }
+            }
+          } else {
+            agent.infoMessage("No escalation target configured, post will require manual review.");
+          }
+          return;
+        }
+      }
     }
 
     await activeBlog.updatePost({ status: "published" }, agent);
