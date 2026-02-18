@@ -114,7 +114,7 @@ URL: ${currentPost.url || 'N/A'}
 To publish this post, please reply with "approve" or "reject".
               `.trim();
 
-              const channel: CommunicationChannel = await escalationService.initiateContactWithUser(state.reviewEscalationTarget, agent);
+              await using channel: CommunicationChannel = await escalationService.initiateContactWithUser(state.reviewEscalationTarget, agent);
 
               await channel.send(message);
               agent.infoMessage(`Escalation sent to ${state.reviewEscalationTarget}`);
@@ -125,13 +125,13 @@ To publish this post, please reply with "approve" or "reject".
                     await activeBlog.updatePost({status: "published"}, agent);
                     agent.infoMessage(`Post "${currentPost.title}" has been published.`);
                     await channel.send(`Post "${currentPost.title}" has been published.`);
-                    await channel.close();
-                  } break;
+                    return;
+                  }
                   case "reject": {
                     agent.infoMessage(`Post "${currentPost.title}" has not been published.`);
                     await channel.send(`Post "${currentPost.title}" has not been published.`);
-                    await channel.close();
-                  } break;
+                    return;
+                  }
                   default:
                     agent.infoMessage(`Unknown response received: ${response}`);
                     await channel.send(`The only valid responses are "approve" or "reject". Please try again.`);
