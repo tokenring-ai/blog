@@ -3,19 +3,17 @@ import type {TreeLeaf} from "@tokenring-ai/agent/question";
 import BlogService from "../../../BlogService.ts";
 import {BlogState} from "../../../state/BlogState.ts";
 
-export async function select(remainder: string, agent: Agent): Promise<void> {
+export async function select(remainder: string, agent: Agent): Promise<string> {
   const blogService = agent.requireServiceByType(BlogService);
   const availableBlogs = blogService.getAvailableBlogs();
 
   if (availableBlogs.length === 0) {
-    agent.infoMessage("No blog providers are registered.");
-    return;
+    return "No blog providers are registered.";
   }
 
   if (availableBlogs.length === 1) {
     blogService.setActiveProvider(availableBlogs[0], agent);
-    agent.infoMessage(`Only one provider configured, auto-selecting: ${availableBlogs[0]}`);
-    return;
+    return `Only one provider configured, auto-selecting: ${availableBlogs[0]}`;
   }
 
   const activeProvider = agent.getState(BlogState).activeProvider;
@@ -40,8 +38,8 @@ export async function select(remainder: string, agent: Agent): Promise<void> {
   if (selection) {
     const selectedValue = selection[0];
     blogService.setActiveProvider(selectedValue, agent);
-    agent.infoMessage(`Active provider set to: ${selectedValue}`);
+    return `Active provider set to: ${selectedValue}`;
   } else {
-    agent.infoMessage("Provider selection cancelled.");
+    return "Provider selection cancelled.";
   }
 }

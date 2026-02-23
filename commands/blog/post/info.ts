@@ -2,15 +2,13 @@ import Agent from "@tokenring-ai/agent/Agent";
 import BlogService from "../../../BlogService.ts";
 import {BlogState} from "../../../state/BlogState.ts";
 
-export async function info(remainder: string, agent: Agent): Promise<void> {
+export async function info(remainder: string, agent: Agent): Promise<string> {
   const blogService = agent.requireServiceByType(BlogService);
   const activeProvider = agent.getState(BlogState).activeProvider;
   const currentPost = blogService.getCurrentPost(agent);
 
   if (!currentPost) {
-    agent.infoMessage("No post is currently selected.");
-    agent.infoMessage("Use /blog post select to choose a post.");
-    return;
+    return "No post is currently selected.\nUse /blog post select to choose a post.";
   }
 
   const createdDate = new Date(currentPost.created_at).toLocaleString();
@@ -36,5 +34,5 @@ export async function info(remainder: string, agent: Agent): Promise<void> {
     infoMessages.push(`URL: ${currentPost.url}`);
   }
 
-  agent.infoMessage(infoMessages.join("\n"));
+  return infoMessages.join("\n");
 }

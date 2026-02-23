@@ -1,9 +1,10 @@
 import Agent from "@tokenring-ai/agent/Agent";
 import type {TreeLeaf} from "@tokenring-ai/agent/question";
+import {CommandFailedError} from "@tokenring-ai/agent/AgentError";
 import BlogService from "../../../BlogService.ts";
 import {BlogState} from "../../../state/BlogState.ts";
 
-export async function select(remainder: string, agent: Agent): Promise<void> {
+export async function select(remainder: string, agent: Agent): Promise<string> {
   const blogService = agent.requireServiceByType(BlogService);
   const activeProvider = agent.getState(BlogState).activeProvider;
 
@@ -11,8 +12,7 @@ export async function select(remainder: string, agent: Agent): Promise<void> {
     const posts = await blogService.getAllPosts(agent);
 
     if (!posts || posts.length === 0) {
-      agent.infoMessage(`No posts found on ${activeProvider}.`);
-      return;
+      return `No posts found on ${activeProvider}.`;
     }
 
     const formattedPosts: TreeLeaf[] = posts.map((post) => {
@@ -39,15 +39,15 @@ export async function select(remainder: string, agent: Agent): Promise<void> {
     if (selection) {
       if (selection.length === 0) {
         await blogService.clearCurrentPost(agent);
-        agent.infoMessage("Post selection cleared.");
+        return "Post selection cleared.";
       } else {
         const post = await blogService.selectPostById(selection[0], agent);
-        agent.infoMessage(`Selected post: "${post.title}"`);
+        return `Selected post: "${post.title}"`;
       }
     } else {
-      agent.infoMessage("Post selection cancelled.");
+      return "Post selection cancelled.";
     }
   } catch (error) {
-    agent.errorMessage("Error during post selection:", error as Error);
+    throw new CommandFailedError(`Error during post selection: ${error instanceof Error ? error.message : String(error)}`);
   }
 }
