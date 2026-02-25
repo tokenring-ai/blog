@@ -13,7 +13,7 @@ import blogRPC from "./rpc/blog.ts";
 import tools from "./tools.ts";
 
 const packageConfigSchema = z.object({
-  blog: BlogConfigSchema.optional()
+  blog: BlogConfigSchema.prefault({}),
 });
 
 export default {
@@ -21,7 +21,6 @@ export default {
   version: packageJSON.version,
   description: packageJSON.description,
   install(app, config) {
-    if (! config.blog) return;
     const service = new BlogService(config.blog);
     app.services.register(service);
 

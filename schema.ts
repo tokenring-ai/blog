@@ -7,6 +7,6 @@ export const BlogAgentConfigSchema = z.object({
 }).default({});
 
 export const BlogConfigSchema = z.object({
-  providers: z.record(z.string(), z.any()),
+  providers: z.record(z.string(), z.any()).default({}),
   agentDefaults: BlogAgentConfigSchema,
 });
