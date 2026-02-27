@@ -1,4 +1,5 @@
 import {Agent} from "@tokenring-ai/agent";
+import type {AgentCreationContext} from "@tokenring-ai/agent/types";
 
 export interface BlogPost {
   id: string;
@@ -32,7 +33,7 @@ export interface BlogProvider {
   imageGenerationModel: string;
   cdnName: string;
 
-  attach(agent: Agent): void;
+  attach(agent: Agent, creationContext: AgentCreationContext): void;
 
   getAllPosts(agent: Agent): Promise<BlogPost[]>;
 

@@ -1,4 +1,5 @@
 import Agent from "@tokenring-ai/agent/Agent";
+import type {AgentCreationContext} from "@tokenring-ai/agent/types";
 import {TokenRingService} from "@tokenring-ai/app/types";
 import type {CommunicationChannel} from "@tokenring-ai/escalation/EscalationProvider";
 import {EscalationService} from "@tokenring-ai/escalation";
@@ -20,14 +21,14 @@ export default class BlogService implements TokenRingService {
 
   constructor(readonly options: z.output<typeof BlogConfigSchema>) {}
   
-  attach(agent: Agent): void {
+  attach(agent: Agent, creationContext: AgentCreationContext): void {
     const agentConfig = deepMerge(this.options.agentDefaults, agent.getAgentConfigSlice('blog', BlogAgentConfigSchema));
     agent.initializeState(BlogState, agentConfig);
     for (const blog of this.providers.getAllItemValues()) {
-      blog?.attach(agent);
+      blog?.attach(agent, creationContext);
     }
+    creationContext.items.push(`Selected blog provider: ${agentConfig.provider ?? "(none)"}`);
   }
-
   requireActiveBlogProvider(agent: Agent): BlogProvider {
     const activeProvider = agent.getState(BlogState).activeProvider;
     if (!activeProvider) throw new Error("No blog provider is currently selected");
