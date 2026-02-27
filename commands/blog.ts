@@ -100,6 +100,7 @@ const execute = createSubcommandRouter({
 });
 
 export default {
+  name: "blog",
   description,
   execute,
   help,

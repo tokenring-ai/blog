@@ -6,7 +6,7 @@ import {ScriptingService} from "@tokenring-ai/scripting";
 import {ScriptingThis} from "@tokenring-ai/scripting/ScriptingService";
 import {z} from "zod";
 import BlogService from "./BlogService.ts";
-import chatCommands from "./chatCommands.ts";
+import agentCommands from "./commands.ts";
 import {BlogConfigSchema} from "./index.ts";
 import packageJSON from './package.json' with {type: 'json'};
 import blogRPC from "./rpc/blog.ts";
@@ -70,7 +70,7 @@ export default {
       chatService.addTools(tools)
     );
     app.waitForService(AgentCommandService, agentCommandService =>
-      agentCommandService.addAgentCommands(chatCommands)
+      agentCommandService.addAgentCommands(agentCommands)
     );
 
     app.waitForService(RpcService, rpcService => {
