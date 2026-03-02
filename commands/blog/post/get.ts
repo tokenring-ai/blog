@@ -1,13 +1,19 @@
 import Agent from "@tokenring-ai/agent/Agent";
+import {TokenRingAgentCommand} from "@tokenring-ai/agent/types";
 import BlogService from "../../../BlogService.ts";
 
-export async function get(remainder: string, agent: Agent): Promise<string> {
-  const blogService = agent.requireServiceByType(BlogService);
-  const currentPost = blogService.getCurrentPost(agent);
+export default {
+  name: "blog post get",
+  description: "/blog post get - Show current post",
+  help: `# /blog post get
 
-  if (!currentPost) {
-    return "No post is currently selected.";
-  }
+Display the currently selected post title. Use /blog post info for full details.
 
-  return `Current post: ${currentPost.title}`;
-}
+## Example
+
+/blog post get`,
+  execute: async (_remainder: string, agent: Agent): Promise<string> => {
+    const post = agent.requireServiceByType(BlogService).getCurrentPost(agent);
+    return post ? `Current post: ${post.title}` : "No post is currently selected.";
+  },
+} satisfies TokenRingAgentCommand;
