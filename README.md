@@ -299,6 +299,8 @@ The package provides JSON-RPC endpoints at `/rpc/blog`.
 | `setActiveProvider` | `agentId: string`, `name: string` | `success: boolean`, `message: string` |
 | `generateImageForPost` | `agentId: string`, `prompt: string`, `aspectRatio?` | `success: boolean`, `imageUrl?`, `message: string` |
 
+**Note:** The RPC `publishPost` endpoint does not include review escalation logic. Review escalation is only available through the `BlogService.publishPost()` method when called directly.
+
 ## Scripting API
 
 The package registers the following functions with the ScriptingService:
@@ -517,6 +519,7 @@ Use the `/blog test` command to test blog connectivity. This will:
 4. **Post Selection**: Always select a post before performing operations that require a current post
 5. **Error Handling**: Check for null returns when getting current post or provider
 6. **Content Format**: Provide content in Markdown for tools, which will be converted to HTML automatically
+7. **RPC vs Service**: Note that RPC `publishPost` does not include review escalation - use the service method directly for review workflow support
 
 ## License
 
