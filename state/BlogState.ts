@@ -1,5 +1,5 @@
 import {Agent} from "@tokenring-ai/agent";
-import type {AgentStateSlice} from "@tokenring-ai/agent/types";
+import {AgentStateSlice} from "@tokenring-ai/agent/types";
 import {z} from "zod";
 import {BlogAgentConfigSchema} from "../schema.ts";
 
@@ -9,14 +9,13 @@ const serializationSchema = z.object({
   reviewEscalationTarget: z.string().optional(),
 }).prefault({ activeProvider: null});
 
-export class BlogState implements AgentStateSlice<typeof serializationSchema> {
-  readonly name = "BlogState";
-  serializationSchema = serializationSchema;
+export class BlogState extends AgentStateSlice<typeof serializationSchema> {
   activeProvider: string | null
   reviewPatterns?: string[];
   reviewEscalationTarget?: string;
 
   constructor(readonly initialConfig: z.output<typeof BlogAgentConfigSchema>) {
+    super("BlogState", serializationSchema);
     this.activeProvider = initialConfig.provider ?? null;
     this.reviewPatterns = initialConfig.reviewPatterns;
     this.reviewEscalationTarget = initialConfig.reviewEscalationTarget;
