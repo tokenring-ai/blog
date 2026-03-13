@@ -127,7 +127,7 @@ Create a new blog post.
 - `contentInMarkdown` (string): The content of the post in Markdown format. The title of the post goes in the title tag, NOT inside the content
 - `tags` (string[], optional): Tags for the post
 
-**Returns:** Created blog post object
+**Returns:** `{ type: 'json', data: BlogPost }`
 
 **Note:** The tool automatically strips the header from the markdown content and converts it to HTML using `marked`.
 
@@ -140,7 +140,7 @@ Update the currently selected blog post.
 - `contentInMarkdown` (string, optional): The content of the post in Markdown format
 - `tags` (string[], optional): New tags for the post
 
-**Returns:** Updated blog post object
+**Returns:** `{ type: 'json', data: BlogPost }`
 
 **Note:** The tool automatically strips the header from the markdown content and converts it to HTML using `marked`.
 
@@ -153,7 +153,7 @@ Retrieves the most recent published posts, optionally filtered by status and key
 - `keyword` (string, optional): Keyword to filter by
 - `limit` (number, optional): Maximum number of posts to return (default: 50)
 
-**Returns:** Formatted table of recent posts
+**Returns:** Formatted table of recent posts as a string
 
 ### `blog_getCurrentPost`
 
@@ -161,7 +161,9 @@ Get the currently selected post from a blog service.
 
 **Parameters:** None
 
-**Returns:** Current post object or error if no post is selected
+**Returns:** 
+- Success: `{ type: 'json', data: { success: true, post: BlogPost, message: string } }`
+- Failure: `{ type: 'json', data: { success: false, error: string, suggestion: string } }`
 
 ### `blog_selectPost`
 
@@ -170,7 +172,7 @@ Selects a blog post by its ID to perform further actions on it.
 **Parameters:**
 - `id` (string): The unique identifier of the post to select
 
-**Returns:** Confirmation message with post details
+**Returns:** Formatted string with post details and JSON representation
 
 ### `blog_generateImageForPost`
 
@@ -180,7 +182,7 @@ Generate an AI image for the currently selected blog post.
 - `prompt` (string): Description of the image to generate
 - `aspectRatio` ("square" | "tall" | "wide", optional): Aspect ratio for the image (default: "square")
 
-**Returns:** Success status and image URL
+**Returns:** `{ type: 'json', data: { success: boolean, imageUrl: string, message: string } }`
 
 **Note:** This tool:
 1. Gets the active blog provider's image generation model
@@ -299,7 +301,9 @@ The package provides JSON-RPC endpoints at `/rpc/blog`.
 | `setActiveProvider` | `agentId: string`, `name: string` | `success: boolean`, `message: string` |
 | `generateImageForPost` | `agentId: string`, `prompt: string`, `aspectRatio?` | `success: boolean`, `imageUrl?`, `message: string` |
 
-**Note:** The RPC `publishPost` endpoint does not include review escalation logic. Review escalation is only available through the `BlogService.publishPost()` method when called directly.
+**Important Notes:**
+- The RPC `publishPost` endpoint does **not** include review escalation logic. Review escalation is only available through the `BlogService.publishPost()` method when called directly.
+- The `getActiveProvider` endpoint returns the provider's **description**, not the provider name.
 
 ## Scripting API
 
@@ -313,7 +317,7 @@ Create a new blog post.
 - `title` (string): Post title
 - `content` (string): Post content in Markdown
 
-**Returns:** Post ID
+**Returns:** Post ID as string
 
 **Example:**
 ```typescript
@@ -328,7 +332,7 @@ Update the currently selected blog post.
 - `title` (string): New title
 - `content` (string): New content in Markdown
 
-**Returns:** Post ID
+**Returns:** Post ID as string
 
 **Example:**
 ```typescript
@@ -510,6 +514,49 @@ Use the `/blog test` command to test blog connectivity. This will:
 4. Update the post with the image
 
 **Note:** The test utility requires a `hello.png` file in the package directory.
+
+### Package Structure
+
+```
+pkg/blog/
+├── BlogProvider.ts       # Provider interface and types
+├── BlogService.ts        # Main service implementation
+├── commands.ts           # Command exports
+├── index.ts              # Package exports
+├── plugin.ts             # Plugin registration
+├── schema.ts             # Configuration schemas
+├── tools.ts              # Tool exports
+├── vitest.config.ts      # Test configuration
+├── commands/             # Agent commands
+│   └── blog/
+│       ├── post/
+│       │   ├── clear.ts
+│       │   ├── get.ts
+│       │   ├── info.ts
+│       │   ├── publish.ts
+│       │   └── select.ts
+│       ├── provider/
+│       │   ├── get.ts
+│       │   ├── reset.ts
+│       │   ├── select.ts
+│       │   └── set.ts
+│       └── test.ts
+├── rpc/
+│   ├── blog.ts           # RPC endpoint implementation
+│   ├── schema.ts         # RPC schema definitions
+│   └── test/             # RPC tests
+├── state/
+│   └── BlogState.ts      # State management
+├── tools/                # Chat tools
+│   ├── createPost.ts
+│   ├── generateImageForPost.ts
+│   ├── getCurrentPost.ts
+│   ├── getRecentPosts.ts
+│   ├── selectPost.ts
+│   └── updatePost.ts
+└── util/
+    └── testBlogConnection.ts  # Connection testing utility
+```
 
 ## Best Practices
 
