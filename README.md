@@ -302,8 +302,9 @@ The package provides JSON-RPC endpoints at `/rpc/blog`.
 | `generateImageForPost` | `agentId: string`, `prompt: string`, `aspectRatio?` | `success: boolean`, `imageUrl?`, `message: string` |
 
 **Important Notes:**
-- The RPC `publishPost` endpoint does **not** include review escalation logic. Review escalation is only available through the `BlogService.publishPost()` method when called directly.
+- The RPC `publishPost` endpoint does **not** include review escalation logic. Review escalation is only available through the `BlogService.publishPost()` method when called directly via chat commands or tool execution.
 - The `getActiveProvider` endpoint returns the provider's **description**, not the provider name.
+- The `updatePost` RPC endpoint supports `status` and `feature_image` parameters, which are not available in the `blog_updatePost` tool.
 
 ## Scripting API
 
