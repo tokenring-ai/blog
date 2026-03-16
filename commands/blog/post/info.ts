@@ -1,9 +1,13 @@
-import Agent from "@tokenring-ai/agent/Agent";
-import {TokenRingAgentCommand} from "@tokenring-ai/agent/types";
+import {AgentCommandInputSchema, AgentCommandInputType, TokenRingAgentCommand} from "@tokenring-ai/agent/types";
 import BlogService from "../../../BlogService.ts";
 import {BlogState} from "../../../state/BlogState.ts";
 
-async function execute(_remainder: string, agent: Agent): Promise<string> {
+const inputSchema = {
+  args: {},
+  allowAttachments: false,
+} as const satisfies AgentCommandInputSchema;
+
+async function execute({agent}: AgentCommandInputType<typeof inputSchema>): Promise<string> {
   const blogService = agent.requireServiceByType(BlogService);
   const currentPost = blogService.getCurrentPost(agent);
   if (!currentPost) return "No post is currently selected.\nUse /blog post select to choose a post.";
@@ -30,4 +34,4 @@ Display detailed information about the currently selected post, including title,
 
 /blog post info`;
 
-export default {name: "blog post info", description: "Show info about current post", help, execute} satisfies TokenRingAgentCommand;
+export default {name: "blog post info", description: "Show info about current post", inputSchema, help, execute} satisfies TokenRingAgentCommand<typeof inputSchema>;

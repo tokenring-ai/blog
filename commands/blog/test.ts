@@ -1,11 +1,22 @@
-import Agent from "@tokenring-ai/agent/Agent";
-import {TokenRingAgentCommand} from "@tokenring-ai/agent/types";
+import {AgentCommandInputSchema, AgentCommandInputType, TokenRingAgentCommand} from "@tokenring-ai/agent/types";
 import BlogService from "../../BlogService.ts";
 import {testBlogConnection} from "../../util/testBlogConnection.js";
+
+const inputSchema = {
+  args: {},
+  allowAttachments: false,
+} as const satisfies AgentCommandInputSchema;
+
+async function execute({agent}: AgentCommandInputType<typeof inputSchema>): Promise<string> {
+  await testBlogConnection(agent.requireServiceByType(BlogService), agent);
+  return "Blog test was successful";
+}
 
 export default {
   name: "blog test",
   description: "Test blog connection",
+  inputSchema,
+  execute,
   help: `# /blog test
 
 Test the blog connection by listing posts, creating a test post, uploading an image, and updating the post.
@@ -13,8 +24,4 @@ Test the blog connection by listing posts, creating a test post, uploading an im
 ## Example
 
 /blog test`,
-  execute: async (_remainder: string, agent: Agent): Promise<string> => {
-    await testBlogConnection(agent.requireServiceByType(BlogService), agent);
-    return "Blog test was successful";
-  },
-} satisfies TokenRingAgentCommand;
+} satisfies TokenRingAgentCommand<typeof inputSchema>;

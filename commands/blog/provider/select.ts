@@ -1,10 +1,14 @@
-import Agent from "@tokenring-ai/agent/Agent";
 import type {TreeLeaf} from "@tokenring-ai/agent/question";
-import {TokenRingAgentCommand} from "@tokenring-ai/agent/types";
+import {AgentCommandInputSchema, AgentCommandInputType, TokenRingAgentCommand} from "@tokenring-ai/agent/types";
 import BlogService from "../../../BlogService.ts";
 import {BlogState} from "../../../state/BlogState.ts";
 
-async function execute(_remainder: string, agent: Agent): Promise<string> {
+const inputSchema = {
+  args: {},
+  allowAttachments: false,
+} as const satisfies AgentCommandInputSchema;
+
+async function execute({agent}: AgentCommandInputType<typeof inputSchema>): Promise<string> {
   const blogService = agent.requireServiceByType(BlogService);
   const available = blogService.getAvailableBlogs();
   if (available.length === 0) return "No blog providers are registered.";
@@ -33,4 +37,4 @@ Interactively select the active blog provider. Auto-selects if only one provider
 
 /blog provider select`;
 
-export default {name: "blog provider select", description: "Interactively select a provider", help, execute} satisfies TokenRingAgentCommand;
+export default {name: "blog provider select", description: "Interactively select a provider", inputSchema, help, execute} satisfies TokenRingAgentCommand<typeof inputSchema>;

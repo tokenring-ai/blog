@@ -1,10 +1,21 @@
-import Agent from "@tokenring-ai/agent/Agent";
-import {TokenRingAgentCommand} from "@tokenring-ai/agent/types";
+import {AgentCommandInputSchema, AgentCommandInputType, TokenRingAgentCommand} from "@tokenring-ai/agent/types";
 import BlogService from "../../../BlogService.ts";
+
+const inputSchema = {
+  args: {},
+  allowAttachments: false,
+} as const satisfies AgentCommandInputSchema;
+
+async function execute({agent}: AgentCommandInputType<typeof inputSchema>): Promise<string> {
+  await agent.requireServiceByType(BlogService).publishPost(agent);
+  return "Post published successfully.";
+}
 
 export default {
   name: "blog post publish",
   description: "Publish current post",
+  inputSchema,
+  execute,
   help: `# /blog post publish
 
 Publish the currently selected post, changing its status from draft to published.
@@ -12,8 +23,4 @@ Publish the currently selected post, changing its status from draft to published
 ## Example
 
 /blog post publish`,
-  execute: async (_remainder: string, agent: Agent): Promise<string> => {
-    await agent.requireServiceByType(BlogService).publishPost(agent);
-    return "Post published successfully.";
-  },
-} satisfies TokenRingAgentCommand;
+} satisfies TokenRingAgentCommand<typeof inputSchema>;
