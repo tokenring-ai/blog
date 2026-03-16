@@ -4,7 +4,7 @@ import {BlogState} from "../../../state/BlogState.ts";
 
 export default {
   name: "blog provider get",
-  description: "/blog provider get - Show current provider",
+  description: "Show current provider",
   help: `# /blog provider get
 
 Display the currently active blog provider.

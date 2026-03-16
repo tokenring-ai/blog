@@ -19,4 +19,4 @@ Reset the active blog provider to the initial configured value.
 
 /blog provider reset`;
 
-export default { name: "blog provider reset", description: "/blog provider reset - Reset to initial provider", help, execute } satisfies TokenRingAgentCommand;
+export default {name: "blog provider reset", description: "Reset to initial provider", help, execute} satisfies TokenRingAgentCommand;

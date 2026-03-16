@@ -23,4 +23,4 @@ Set the active blog provider by name.
 
 /blog provider set wordpress`;
 
-export default { name: "blog provider set", description: "/blog provider set - Set the active provider", help, execute } satisfies TokenRingAgentCommand;
+export default {name: "blog provider set", description: "Set the active provider", help, execute} satisfies TokenRingAgentCommand;

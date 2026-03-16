@@ -4,7 +4,7 @@ import BlogService from "../../../BlogService.ts";
 
 export default {
   name: "blog post publish",
-  description: "/blog post publish - Publish current post",
+  description: "Publish current post",
   help: `# /blog post publish
 
 Publish the currently selected post, changing its status from draft to published.

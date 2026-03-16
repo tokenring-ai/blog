@@ -4,7 +4,7 @@ import BlogService from "../../../BlogService.ts";
 
 export default {
   name: "blog post get",
-  description: "/blog post get - Show current post",
+  description: "Show current post",
   help: `# /blog post get
 
 Display the currently selected post title. Use /blog post info for full details.

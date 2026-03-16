@@ -4,7 +4,7 @@ import BlogService from "../../../BlogService.ts";
 
 export default {
   name: "blog post clear",
-  description: "/blog post clear - Clear current post selection",
+  description: "Clear current post selection",
   help: `# /blog post clear
 
 Clear the current post selection. Use this to start fresh with no post selected.

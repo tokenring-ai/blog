@@ -30,4 +30,4 @@ Display detailed information about the currently selected post, including title,
 
 /blog post info`;
 
-export default { name: "blog post info", description: "/blog post info - Show info about current post", help, execute } satisfies TokenRingAgentCommand;
+export default {name: "blog post info", description: "Show info about current post", help, execute} satisfies TokenRingAgentCommand;

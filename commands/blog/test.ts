@@ -5,7 +5,7 @@ import {testBlogConnection} from "../../util/testBlogConnection.js";
 
 export default {
   name: "blog test",
-  description: "/blog test - Test blog connection",
+  description: "Test blog connection",
   help: `# /blog test
 
 Test the blog connection by listing posts, creating a test post, uploading an image, and updating the post.

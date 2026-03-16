@@ -1,6 +1,6 @@
 import Agent from "@tokenring-ai/agent/Agent";
-import type {TreeLeaf} from "@tokenring-ai/agent/question";
 import {CommandFailedError} from "@tokenring-ai/agent/AgentError";
+import type {TreeLeaf} from "@tokenring-ai/agent/question";
 import {TokenRingAgentCommand} from "@tokenring-ai/agent/types";
 import BlogService from "../../../BlogService.ts";
 
@@ -37,4 +37,4 @@ Interactively select a post to work with. Shows post status (üìù published, üî
 
 /blog post select`;
 
-export default { name: "blog post select", description: "/blog post select - Select a post", help, execute } satisfies TokenRingAgentCommand;
+export default {name: "blog post select", description: "Select a post", help, execute} satisfies TokenRingAgentCommand;

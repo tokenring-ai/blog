@@ -33,4 +33,4 @@ Interactively select the active blog provider. Auto-selects if only one provider
 
 /blog provider select`;
 
-export default { name: "blog provider select", description: "/blog provider select - Interactively select a provider", help, execute } satisfies TokenRingAgentCommand;
+export default {name: "blog provider select", description: "Interactively select a provider", help, execute} satisfies TokenRingAgentCommand;
