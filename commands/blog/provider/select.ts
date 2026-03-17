@@ -3,10 +3,7 @@ import {AgentCommandInputSchema, AgentCommandInputType, TokenRingAgentCommand} f
 import BlogService from "../../../BlogService.ts";
 import {BlogState} from "../../../state/BlogState.ts";
 
-const inputSchema = {
-  args: {},
-  allowAttachments: false,
-} as const satisfies AgentCommandInputSchema;
+const inputSchema = {} as const satisfies AgentCommandInputSchema;
 
 async function execute({agent}: AgentCommandInputType<typeof inputSchema>): Promise<string> {
   const blogService = agent.requireServiceByType(BlogService);
@@ -29,9 +26,7 @@ async function execute({agent}: AgentCommandInputType<typeof inputSchema>): Prom
   return "Provider selection cancelled.";
 }
 
-const help = `# /blog provider select
-
-Interactively select the active blog provider. Auto-selects if only one provider is configured.
+const help = `Interactively select the active blog provider. Auto-selects if only one provider is configured.
 
 ## Example
 

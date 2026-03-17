@@ -1,10 +1,7 @@
 import {AgentCommandInputSchema, AgentCommandInputType, TokenRingAgentCommand} from "@tokenring-ai/agent/types";
 import BlogService from "../../../BlogService.ts";
 
-const inputSchema = {
-  args: {},
-  allowAttachments: false,
-} as const satisfies AgentCommandInputSchema;
+const inputSchema = {} as const satisfies AgentCommandInputSchema;
 
 async function execute({agent}: AgentCommandInputType<typeof inputSchema>): Promise<string> {
   await agent.requireServiceByType(BlogService).clearCurrentPost(agent);
@@ -16,9 +13,7 @@ export default {
   description: "Clear current post selection",
   inputSchema,
   execute,
-  help: `# /blog post clear
-
-Clear the current post selection. Use this to start fresh with no post selected.
+  help: `Clear the current post selection. Use this to start fresh with no post selected.
 
 ## Example
 

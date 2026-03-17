@@ -3,10 +3,7 @@ import type {TreeLeaf} from "@tokenring-ai/agent/question";
 import {AgentCommandInputSchema, AgentCommandInputType, TokenRingAgentCommand} from "@tokenring-ai/agent/types";
 import BlogService from "../../../BlogService.ts";
 
-const inputSchema = {
-  args: {},
-  allowAttachments: false,
-} as const satisfies AgentCommandInputSchema;
+const inputSchema = {} as const satisfies AgentCommandInputSchema;
 
 async function execute({agent}: AgentCommandInputType<typeof inputSchema>): Promise<string> {
   const blogService = agent.requireServiceByType(BlogService);
@@ -33,9 +30,7 @@ async function execute({agent}: AgentCommandInputType<typeof inputSchema>): Prom
   }
 }
 
-const help = `# /blog post select
-
-Interactively select a post to work with. Shows post status (📝 published, 🔒 draft) and last updated date.
+const help = `Interactively select a post to work with. Shows post status (📝 published, 🔒 draft) and last updated date.
 
 ## Example
 

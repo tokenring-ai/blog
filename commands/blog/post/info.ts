@@ -2,10 +2,7 @@ import {AgentCommandInputSchema, AgentCommandInputType, TokenRingAgentCommand} f
 import BlogService from "../../../BlogService.ts";
 import {BlogState} from "../../../state/BlogState.ts";
 
-const inputSchema = {
-  args: {},
-  allowAttachments: false,
-} as const satisfies AgentCommandInputSchema;
+const inputSchema = {} as const satisfies AgentCommandInputSchema;
 
 async function execute({agent}: AgentCommandInputType<typeof inputSchema>): Promise<string> {
   const blogService = agent.requireServiceByType(BlogService);
@@ -26,9 +23,7 @@ async function execute({agent}: AgentCommandInputType<typeof inputSchema>): Prom
   return lines.join("\n");
 }
 
-const help = `# /blog post info
-
-Display detailed information about the currently selected post, including title, status, dates, word count, tags, and URL.
+const help = `Display detailed information about the currently selected post, including title, status, dates, word count, tags, and URL.
 
 ## Example
 

@@ -3,10 +3,7 @@ import {AgentCommandInputSchema, AgentCommandInputType, TokenRingAgentCommand} f
 import BlogService from "../../../BlogService.ts";
 import {BlogState} from "../../../state/BlogState.ts";
 
-const inputSchema = {
-  args: {},
-  allowAttachments: false,
-} as const satisfies AgentCommandInputSchema;
+const inputSchema = {} as const satisfies AgentCommandInputSchema;
 
 async function execute({agent}: AgentCommandInputType<typeof inputSchema>): Promise<string> {
   const initialProvider = agent.getState(BlogState).initialConfig.provider;
@@ -15,9 +12,7 @@ async function execute({agent}: AgentCommandInputType<typeof inputSchema>): Prom
   return `Provider reset to ${initialProvider}`;
 }
 
-const help = `# /blog provider reset
-
-Reset the active blog provider to the initial configured value.
+const help = `Reset the active blog provider to the initial configured value.
 
 ## Example
 

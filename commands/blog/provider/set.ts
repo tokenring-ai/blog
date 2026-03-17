@@ -4,16 +4,19 @@ import BlogService from "../../../BlogService.ts";
 
 const inputSchema = {
   args: {},
-  prompt: {
-    description: "The provider name to set",
-    required: true,
-  },
+  positionals: [
+    {
+      name: "name",
+      description: "The provider name to set",
+      required: true,
+    },
+  ],
   allowAttachments: false,
 } as const satisfies AgentCommandInputSchema;
 
-async function execute({prompt, agent}: AgentCommandInputType<typeof inputSchema>): Promise<string> {
+async function execute({positionals, agent}: AgentCommandInputType<typeof inputSchema>): Promise<string> {
   const blogService = agent.requireServiceByType(BlogService);
-  const providerName = prompt.trim();
+  const providerName = positionals.name;
   if (!providerName) throw new CommandFailedError("Usage: /blog provider set <name>");
   const available = blogService.getAvailableBlogs();
   if (available.includes(providerName)) {
@@ -23,9 +26,7 @@ async function execute({prompt, agent}: AgentCommandInputType<typeof inputSchema
   return `Provider "${providerName}" not found. Available providers: ${available.join(", ")}`;
 }
 
-const help = `# /blog provider set <name>
-
-Set the active blog provider by name.
+const help = `Set the active blog provider by name.
 
 ## Example
 

@@ -2,10 +2,7 @@ import {AgentCommandInputSchema, AgentCommandInputType, TokenRingAgentCommand} f
 import BlogService from "../../BlogService.ts";
 import {testBlogConnection} from "../../util/testBlogConnection.js";
 
-const inputSchema = {
-  args: {},
-  allowAttachments: false,
-} as const satisfies AgentCommandInputSchema;
+const inputSchema = {} as const satisfies AgentCommandInputSchema;
 
 async function execute({agent}: AgentCommandInputType<typeof inputSchema>): Promise<string> {
   await testBlogConnection(agent.requireServiceByType(BlogService), agent);
@@ -17,9 +14,7 @@ export default {
   description: "Test blog connection",
   inputSchema,
   execute,
-  help: `# /blog test
-
-Test the blog connection by listing posts, creating a test post, uploading an image, and updating the post.
+  help: `Test the blog connection by listing posts, creating a test post, uploading an image, and updating the post.
 
 ## Example
 
