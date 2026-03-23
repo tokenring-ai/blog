@@ -36,20 +36,22 @@ describe('Blog RPC Endpoints', () => {
     blogService = blogSetup.blogService;
     testProvider = blogSetup.testProvider;
 
-    blogService.attach(agent)
+    // Pass proper creationContext to attach
+    const creationContext = { items: [] as string[] };
+    blogService.attach(agent, creationContext);
 
     agent.mutateState(BlogState, state => {
       state.activeProvider = 'test';
     });
 
     cdnService = new CDNService();
-    app.addServices(cdnService)
+    app.addServices(cdnService);
     vi.spyOn(cdnService, 'upload').mockResolvedValue({
       id: 'cdn-id-123',
       url: 'https://cdn.example.com/test-image.png'
     });
 
-    app.addServices(imageGenerationModelRegistry)
+    app.addServices(imageGenerationModelRegistry);
   });
 
   describe('getCurrentPost', () => {
@@ -332,14 +334,13 @@ describe('Blog RPC Endpoints', () => {
 
     it('should generate and set image for post', async () => {
       vi.spyOn(imageGenerationModelRegistry, 'getClient').mockResolvedValue({
-        generateImage: ()=> {
+        generateImage: () => {
           return [{
             mediaType: 'image/png',
             base64: 'foo',
             uint8Array: new Uint8Array([1, 2, 3]),
           } satisfies GeneratedFile];
         }
-
       });
 
       const result = await blogRPC.methods.generateImageForPost.execute(
@@ -359,10 +360,9 @@ describe('Blog RPC Endpoints', () => {
     });
 
     it('should use different aspect ratios', async () => {
-
-      let lastSize;
+      let lastSize: string | undefined;
       vi.spyOn(imageGenerationModelRegistry, 'getClient').mockResolvedValue({
-        generateImage: ({ size })=> {
+        generateImage: ({ size }: { size: string }) => {
           lastSize = size;
           return [{
             mediaType: 'image/png',
@@ -370,7 +370,6 @@ describe('Blog RPC Endpoints', () => {
             uint8Array: new Uint8Array([1, 2, 3]),
           } satisfies GeneratedFile];
         }
-
       });
       const sizes = {
         square: '1024x1024',
