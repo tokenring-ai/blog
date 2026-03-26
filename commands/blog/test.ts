@@ -1,6 +1,6 @@
 import {AgentCommandInputSchema, AgentCommandInputType, TokenRingAgentCommand} from "@tokenring-ai/agent/types";
 import BlogService from "../../BlogService.ts";
-import {testBlogConnection} from "../../util/testBlogConnection.js";
+import {testBlogConnection} from "../../util/testBlogConnection.ts";
 
 const inputSchema = {} as const satisfies AgentCommandInputSchema;
 

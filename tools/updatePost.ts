@@ -2,7 +2,7 @@ import Agent from "@tokenring-ai/agent/Agent";
 import {TokenRingToolDefinition} from "@tokenring-ai/chat/schema";
 import {marked} from "marked";
 import {z} from "zod";
-import {UpdatePostData} from "../BlogProvider.js";
+import {UpdatePostData} from "../BlogProvider.ts";
 import BlogService from "../BlogService.ts";
 
 const name = "blog_updatePost";

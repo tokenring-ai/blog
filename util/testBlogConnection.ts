@@ -3,7 +3,7 @@ import CDNService from "@tokenring-ai/cdn/CDNService";
 import {readFileSync} from "node:fs";
 import {resolve} from "node:path";
 import {v4 as uuid} from "uuid";
-import BlogService from "../BlogService.js";
+import BlogService from "../BlogService.ts";
 
 export async function testBlogConnection(
   blogService: BlogService,

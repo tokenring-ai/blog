@@ -1,7 +1,7 @@
 import {Agent} from "@tokenring-ai/agent";
 import TokenRingApp from "@tokenring-ai/app";
 import {BlogProvider} from "../../BlogProvider";
-import BlogService from "../../BlogService.js";
+import BlogService from "../../BlogService.ts";
 import {BlogConfigSchema} from "../../schema.ts";
 
 // Test configuration for BlogService

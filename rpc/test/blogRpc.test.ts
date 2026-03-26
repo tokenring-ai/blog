@@ -7,10 +7,10 @@ import CDNService from "@tokenring-ai/cdn/CDNService";
 import {GeneratedFile} from "ai";
 import {beforeEach, describe, expect, it, vi} from 'vitest';
 import {BlogProvider} from "../../BlogProvider";
-import BlogService from "../../BlogService.js";
-import {BlogState} from "../../state/BlogState.js";
-import blogRPC from "../blog.js";
-import createTestBlogService from "./createTestBlogService.js";
+import BlogService from "../../BlogService.ts";
+import {BlogState} from "../../state/BlogState.ts";
+import blogRPC from "../blog.ts";
+import createTestBlogService from "./createTestBlogService.ts";
 
 /**
  * Test suite for Blog RPC endpoints

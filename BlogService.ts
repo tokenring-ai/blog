@@ -6,9 +6,9 @@ import {EscalationService} from "@tokenring-ai/escalation";
 import deepMerge from "@tokenring-ai/utility/object/deepMerge";
 import KeyedRegistry from "@tokenring-ai/utility/registry/KeyedRegistry";
 import {z} from "zod";
-import {type BlogPost, type BlogPostFilterOptions, BlogProvider, type CreatePostData, type UpdatePostData} from "./BlogProvider.js";
+import {type BlogPost, type BlogPostFilterOptions, BlogProvider, type CreatePostData, type UpdatePostData} from "./BlogProvider.ts";
 import {BlogAgentConfigSchema, BlogConfigSchema} from "./schema.ts";
-import {BlogState} from "./state/BlogState.js";
+import {BlogState} from "./state/BlogState.ts";
 
 export default class BlogService implements TokenRingService {
   readonly name = "BlogService";
@@ -82,18 +82,13 @@ export default class BlogService implements TokenRingService {
   }
 
   async publishPost(agent: Agent): Promise<void> {
-    const activeBlog = this.requireActiveBlogProvider(agent)
+    const activeBlog = this.requireActiveBlogProvider(agent);
 
     const currentPost = activeBlog.getCurrentPost(agent);
     if (!currentPost) {
       agent.infoMessage("No post is currently selected.");
       agent.infoMessage("Use /blog post select to choose a post.");
       return;
-    }
-
-    if (currentPost.status === "published") {
-      agent.infoMessage(`Post "${currentPost.title}" is already published.`);
-      //return;
     }
 
     const state = agent.getState(BlogState);

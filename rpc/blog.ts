@@ -6,7 +6,7 @@ import {createRPCEndpoint} from "@tokenring-ai/rpc/createRPCEndpoint";
 import {marked} from "marked";
 import {Buffer} from "node:buffer";
 import {v4 as uuid} from "uuid";
-import BlogService from "../BlogService.js";
+import BlogService from "../BlogService.ts";
 import BlogRpcSchema from "./schema.ts";
 
 export default createRPCEndpoint(BlogRpcSchema, {
