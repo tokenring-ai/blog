@@ -37,7 +37,7 @@ bun add @tokenring-ai/blog
 - `@tokenring-ai/rpc` - JSON-RPC implementation
 - `@tokenring-ai/cdn` - CDN service for image uploads
 - `@tokenring-ai/scripting` - Scripting API
-- `@tokenring-ai/escalation` - Escalation service for review workflows
+- `@tokenring-ai/escalation` - Escalation service for review workflows (required for review pattern escalation in `BlogService.publishPost()`)
 - `zod` - Schema validation
 - `marked` - Markdown to HTML conversion
 - `uuid` - Unique ID generation
@@ -305,6 +305,7 @@ The package provides JSON-RPC endpoints at `/rpc/blog`.
 - The RPC `publishPost` endpoint does **not** include review escalation logic. Review escalation is only available through the `BlogService.publishPost()` method when called directly via chat commands or tool execution.
 - The `getActiveProvider` endpoint returns the provider's **description**, not the provider name.
 - The `updatePost` RPC endpoint supports `status` and `feature_image` parameters, which are not available in the `blog_updatePost` tool.
+- The `/blog test` command requires a `hello.png` file in the package directory for testing image uploads.
 
 ## Scripting API
 

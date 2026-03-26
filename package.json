@@ -13,7 +13,7 @@
     "@tokenring-ai/utility": "0.2.0",
     "@tokenring-ai/scripting": "0.2.0",
     "@tokenring-ai/escalation": "0.2.0",
-    "marked": "^17.0.4",
+    "marked": "^17.0.5",
     "uuid": "^13.0.0"
   },
   "exports": {
@@ -23,8 +23,8 @@
   "license": "MIT",
   "type": "module",
   "devDependencies": {
-    "vitest": "^4.1.0",
-    "typescript": "^5.9.3"
+    "vitest": "^4.1.1",
+    "typescript": "^6.0.2"
   },
   "scripts": {
     "test": "vitest run",

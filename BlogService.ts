@@ -23,11 +23,11 @@ export default class BlogService implements TokenRingService {
   
   attach(agent: Agent, creationContext: AgentCreationContext): void {
     const agentConfig = deepMerge(this.options.agentDefaults, agent.getAgentConfigSlice('blog', BlogAgentConfigSchema));
-    agent.initializeState(BlogState, agentConfig);
+    const initialState = agent.initializeState(BlogState, agentConfig);
     for (const blog of this.providers.getAllItemValues()) {
       blog?.attach(agent, creationContext);
     }
-    creationContext.items.push(`Selected blog provider: ${agentConfig.provider ?? "(none)"}`);
+    creationContext.items.push(`Selected blog provider: ${initialState.activeProvider ?? "(none)"}`);
   }
   requireActiveBlogProvider(agent: Agent): BlogProvider {
     const activeProvider = agent.getState(BlogState).activeProvider;
