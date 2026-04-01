@@ -21,11 +21,11 @@ async function execute(
 
   const update: UpdatePostData = {};
   if (title) update.title = title;
-  if (contentInMarkdown) update.content = marked(contentInMarkdown, { async: false});
+  if (contentInMarkdown) update.html = marked(contentInMarkdown, { async: false});
   if (tags) update.tags = tags;
 
 
-  const updatedPost = await blogService.updatePost(update,agent);
+  const updatedPost = await blogService.updateCurrentPost(update, agent);
 
   agent.infoMessage(`[${name}] Post updated with ID: ${updatedPost.id}`);
   return { type: 'json' as const, data: updatedPost };

@@ -29,18 +29,18 @@ bun add @tokenring-ai/blog
 
 ### Dependencies
 
-- `@tokenring-ai/ai-client` - AI client for image generation
-- `@tokenring-ai/app` - Base application framework
-- `@tokenring-ai/agent` - Agent orchestration
-- `@tokenring-ai/chat` - Chat service integration
-- `@tokenring-ai/utility` - Shared utilities
-- `@tokenring-ai/rpc` - JSON-RPC implementation
-- `@tokenring-ai/cdn` - CDN service for image uploads
-- `@tokenring-ai/scripting` - Scripting API
-- `@tokenring-ai/escalation` - Escalation service for review workflows (required for review pattern escalation in `BlogService.publishPost()`)
-- `zod` - Schema validation
-- `marked` - Markdown to HTML conversion
-- `uuid` - Unique ID generation
+- `@tokenring-ai/ai-client` (0.2.0) - AI client for image generation
+- `@tokenring-ai/app` (0.2.0) - Base application framework
+- `@tokenring-ai/agent` (0.2.0) - Agent orchestration
+- `@tokenring-ai/chat` (0.2.0) - Chat service integration
+- `@tokenring-ai/utility` (0.2.0) - Shared utilities
+- `@tokenring-ai/rpc` (0.2.0) - JSON-RPC implementation
+- `@tokenring-ai/cdn` (0.2.0) - CDN service for image uploads
+- `@tokenring-ai/scripting` (0.2.0) - Scripting API
+- `@tokenring-ai/escalation` (0.2.0) - Escalation service for review workflows (required for review pattern escalation in `BlogService.publishPost()`)
+- `zod` (^4.3.6) - Schema validation
+- `marked` (^17.0.5) - Markdown to HTML conversion
+- `uuid` (^13.0.0) - Unique ID generation
 
 ## Chat Commands
 

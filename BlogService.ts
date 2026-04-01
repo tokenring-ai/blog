@@ -6,7 +6,7 @@ import {EscalationService} from "@tokenring-ai/escalation";
 import deepMerge from "@tokenring-ai/utility/object/deepMerge";
 import KeyedRegistry from "@tokenring-ai/utility/registry/KeyedRegistry";
 import {z} from "zod";
-import {type BlogPost, type BlogPostFilterOptions, BlogProvider, type CreatePostData, type UpdatePostData} from "./BlogProvider.ts";
+import {type BlogPost, type BlogPostFilterOptions, type BlogPostListItem, BlogProvider, type CreatePostData, type UpdatePostData} from "./BlogProvider.ts";
 import {BlogAgentConfigSchema, BlogConfigSchema} from "./schema.ts";
 import {BlogState} from "./state/BlogState.ts";
 
@@ -18,15 +18,14 @@ export default class BlogService implements TokenRingService {
 
   registerBlog = this.providers.register;
   getAvailableBlogs = this.providers.getAllItemNames;
+  getBlogProvider = this.providers.getItemByName;
+  requireBlogProvider = this.providers.requireItemByName;
 
   constructor(readonly options: z.output<typeof BlogConfigSchema>) {}
   
   attach(agent: Agent, creationContext: AgentCreationContext): void {
     const agentConfig = deepMerge(this.options.agentDefaults, agent.getAgentConfigSlice('blog', BlogAgentConfigSchema));
     const initialState = agent.initializeState(BlogState, agentConfig);
-    for (const blog of this.providers.getAllItemValues()) {
-      blog?.attach(agent, creationContext);
-    }
     creationContext.items.push(`Selected blog provider: ${initialState.activeProvider ?? "(none)"}`);
   }
   requireActiveBlogProvider(agent: Agent): BlogProvider {
@@ -41,50 +40,57 @@ export default class BlogService implements TokenRingService {
     });
   }
 
-  async getAllPosts(agent: Agent): Promise<BlogPost[]> {
+  async getAllPosts(agent: Agent): Promise<BlogPostListItem[]> {
     const activeBlog = this.requireActiveBlogProvider(agent);
-    return activeBlog.getAllPosts(agent);
+    return activeBlog.getAllPosts();
   }
 
-  async getRecentPosts(filter: BlogPostFilterOptions, agent: Agent): Promise<BlogPost[]> {
+  async getRecentPosts(filter: BlogPostFilterOptions, agent: Agent): Promise<BlogPostListItem[]> {
     const activeBlog = this.requireActiveBlogProvider(agent);
-    return activeBlog.getRecentPosts(filter, agent);
+    return activeBlog.getRecentPosts(filter);
   }
 
   async createPost(data: CreatePostData, agent: Agent): Promise<BlogPost> {
     const activeBlog = this.requireActiveBlogProvider(agent);
-    return activeBlog.createPost(data,agent);
+    return activeBlog.createPost(data);
   }
 
-  async updatePost(data: UpdatePostData, agent: Agent): Promise<BlogPost> {
+  async updateCurrentPost(updatedData: UpdatePostData, agent: Agent): Promise<BlogPost> {
     const activeBlog = this.requireActiveBlogProvider(agent)
-    return activeBlog.updatePost(data,agent);
+    const currentPost = agent.getState(BlogState).currentPost;
+    if (! currentPost) throw new Error(`No post is currently selected.`);
+
+    const updatedPost = await activeBlog.updatePost(currentPost.id, updatedData);
+    agent.mutateState(BlogState, (state) => {
+      state.currentPost = updatedPost;
+    });
+    return updatedPost;
   }
 
   getCurrentPost(agent: Agent): BlogPost | null {
-    const activeProvider = agent.getState(BlogState).activeProvider;
-    if (!activeProvider) return null;
-    
-    const activeBlog = this.providers.getItemByName(activeProvider);
-    if (!activeBlog) return null;
-    
-    return activeBlog.getCurrentPost(agent);
+    return agent.getState(BlogState).currentPost ?? null;
   }
 
   async selectPostById(id: string,agent: Agent): Promise<BlogPost> {
     const activeBlog = this.requireActiveBlogProvider(agent)
-    return await activeBlog.selectPostById(id,agent);
+    const selectedPost = await activeBlog.getPostById(id);
+    if (!selectedPost) throw new Error(`Post with ID ${id} not found`);
+    agent.mutateState(BlogState, (state) => {
+      state.currentPost = selectedPost;
+    });
+    return selectedPost;
   }
 
   async clearCurrentPost(agent: Agent): Promise<void> {
-    const activeBlog = this.requireActiveBlogProvider(agent)
-    return await activeBlog.clearCurrentPost(agent);
+    agent.mutateState(BlogState, (state) => {
+      state.currentPost = undefined;
+    })
   }
 
   async publishPost(agent: Agent): Promise<void> {
     const activeBlog = this.requireActiveBlogProvider(agent);
 
-    const currentPost = activeBlog.getCurrentPost(agent);
+    const currentPost = agent.getState(BlogState).currentPost;
     if (!currentPost) {
       agent.infoMessage("No post is currently selected.");
       agent.infoMessage("Use /blog post select to choose a post.");
@@ -94,10 +100,10 @@ export default class BlogService implements TokenRingService {
     const state = agent.getState(BlogState);
     
     // Check review patterns
-    if (state.reviewPatterns && state.reviewPatterns.length > 0 && currentPost.content) {
+    if (state.reviewPatterns && state.reviewPatterns.length > 0 && currentPost.html) {
       for (const pattern of state.reviewPatterns) {
         const regex = new RegExp(pattern, 'i');
-        if (regex.test(currentPost.content)) {
+        if (regex.test(currentPost.html)) {
           agent.infoMessage(`Post "${currentPost.title}" requires review (matched pattern: ${pattern})`);
           
           if (state.reviewEscalationTarget) {
@@ -118,7 +124,7 @@ To publish this post, please reply with "approve" or "reject".
               for await (const response of channel.receive()) {
                 switch (response.trim().toLowerCase()) {
                   case "approve": {
-                    await activeBlog.updatePost({status: "published"}, agent);
+                    await activeBlog.updatePost(currentPost.id, {status: "published"});
                     agent.infoMessage(`Post "${currentPost.title}" has been published.`);
                     await channel.send(`Post "${currentPost.title}" has been published.`);
                     return;
@@ -142,7 +148,7 @@ To publish this post, please reply with "approve" or "reject".
       }
     }
 
-    await activeBlog.updatePost({ status: "published" }, agent);
+    await activeBlog.updatePost(currentPost.id, { status: "published" });
     agent.infoMessage(`Post "${currentPost.title}" has been published.`);
   }
 }

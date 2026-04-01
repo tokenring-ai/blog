@@ -29,7 +29,7 @@ class TestBlogProvider implements BlogProvider {
       {
         id: 'post-1',
         title: 'Test Post 1',
-        content: 'Test content 1',
+        html: 'Test content 1',
         status: 'draft',
         tags: ['test'],
         created_at: new Date('2024-01-01'),
@@ -39,7 +39,7 @@ class TestBlogProvider implements BlogProvider {
       {
         id: 'post-2',
         title: 'Test Post 2',
-        content: 'Test content 2',
+        html: 'Test content 2',
         status: 'published',
         tags: ['test', 'published'],
         created_at: new Date('2024-01-02'),
@@ -58,7 +58,7 @@ class TestBlogProvider implements BlogProvider {
     const newPost = {
       id: `post-${Date.now()}`,
       title: data.title,
-      content: data.content,
+      html: data.html,
       status: 'draft',
       tags: data.tags || [],
       created_at: new Date(),

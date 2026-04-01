@@ -17,7 +17,7 @@ async function execute(
   return `
 Selected post: "${post.title}" (ID: ${post.id})
 Status: ${post.status}
-Created at: ${post.created_at.toISOString()}
+Created at: ${new Date(post.created_at).toISOString()}
 
 JSON representation:
 ${JSON.stringify(post, null, 2)}

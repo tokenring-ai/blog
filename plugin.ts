@@ -28,18 +28,18 @@ export default {
       scriptingService.registerFunction(
         "createPost", {
           type: 'native',
-          params: ['title', 'content'],
-          async execute(this: ScriptingThis, title: string, content: string): Promise<string> {
-            const post = await this.agent.requireServiceByType(BlogService).createPost({title, content}, this.agent);
+          params: ['title', 'html'],
+          async execute(this: ScriptingThis, title: string, html: string): Promise<string> {
+            const post = await this.agent.requireServiceByType(BlogService).createPost({title, html}, this.agent);
             return `Created post: ${post.id}`;
           }
         });
 
       scriptingService.registerFunction("updatePost", {
           type: 'native',
-          params: ['title', 'content'],
-          async execute(this: ScriptingThis, title: string, content: string): Promise<string> {
-            const post = await this.agent.requireServiceByType(BlogService).updatePost({title, content}, this.agent);
+          params: ['title', 'html'],
+          async execute(this: ScriptingThis, title: string, html: string): Promise<string> {
+            const post = await this.agent.requireServiceByType(BlogService).updateCurrentPost({title, html}, this.agent);
             return `Updated post: ${post.id}`;
           }
         }

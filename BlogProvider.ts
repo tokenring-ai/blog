@@ -1,31 +1,55 @@
-import {Agent} from "@tokenring-ai/agent";
-import type {AgentCreationContext} from "@tokenring-ai/agent/types";
+import { z } from "zod";
 
-export interface BlogPost {
-  id: string;
-  title: string;
-  content?: string;
-  status: 'draft' | 'published' | 'scheduled' | 'pending' | 'private';
-  tags?: string[];
-  created_at: Date;
-  updated_at: Date;
-  published_at?: Date;
-  feature_image?: {
-    id?: string;
-    url?: string;
-  }
-  url?: string;
-}
+export const BlogPostStatusSchema = z.enum(['draft', 'published', 'scheduled', 'pending', 'private']);
 
-export type CreatePostData = Omit<BlogPost, 'id' | 'created_at' | 'updated_at' | 'published_at' | 'status'>;
+export const BlogPostListItemSchema = z.object({
+  id: z.string(),
+  title: z.string(),
+  status: BlogPostStatusSchema,
+  tags: z.array(z.string()).optional(),
+  created_at: z.number(), // Unix timestamp in milliseconds
+  updated_at: z.number(),
+  published_at: z.number().optional(),
+  feature_image: z.object({
+    id: z.string().optional(),
+    url: z.string().optional(),
+  }).optional(),
+  url: z.string().optional(),
+});
+export type BlogPostListItem = z.infer<typeof BlogPostListItemSchema>;
 
-export type UpdatePostData = Partial<Omit<BlogPost, 'id' | 'created_at' | 'updated_at'>>;
 
-export type BlogPostFilterOptions = {
-  keyword?: string;
-  limit?: number;
-  status?: 'draft' | 'published' | 'scheduled' | 'pending' | 'private';
-}
+export const BlogPostSchema = BlogPostListItemSchema.extend({
+  html: z.string(),
+});
+
+export type BlogPost = z.infer<typeof BlogPostSchema>;
+
+export const CreatePostDataSchema = BlogPostSchema.omit({
+  id: true,
+  created_at: true,
+  updated_at: true,
+  published_at: true,
+  status: true,
+});
+
+export type CreatePostData = z.infer<typeof CreatePostDataSchema>;
+
+export const UpdatePostDataSchema = BlogPostSchema.omit({
+  id: true,
+  created_at: true,
+  updated_at: true,
+}).partial();
+
+export type UpdatePostData = z.infer<typeof UpdatePostDataSchema>;
+
+export const BlogPostFilterOptionsSchema = z.object({
+  keyword: z.string().optional(),
+  limit: z.number().optional(),
+  status: BlogPostStatusSchema.optional(),
+});
+
+export type BlogPostFilterOptions = z.infer<typeof BlogPostFilterOptionsSchema>;
 
 export interface BlogProvider {
   description: string;
@@ -33,19 +57,13 @@ export interface BlogProvider {
   imageGenerationModel: string;
   cdnName: string;
 
-  attach(agent: Agent, creationContext: AgentCreationContext): void;
+  getAllPosts(): Promise<BlogPostListItem[]>;
 
-  getAllPosts(agent: Agent): Promise<BlogPost[]>;
+  getRecentPosts(filter: BlogPostFilterOptions): Promise<BlogPostListItem[]>;
 
-  getRecentPosts(filter: BlogPostFilterOptions, agent: Agent): Promise<BlogPost[]>;
+  createPost(data: CreatePostData): Promise<BlogPost>;
 
-  createPost(data: CreatePostData, agent: Agent): Promise<BlogPost>;
+  updatePost(id: string, updatedData: UpdatePostData): Promise<BlogPost>;
 
-  updatePost(data: UpdatePostData, agent: Agent): Promise<BlogPost>;
-
-  selectPostById(id: string, agent: Agent): Promise<BlogPost>;
-
-  getCurrentPost(agent: Agent): BlogPost | null;
-
-  clearCurrentPost(agent: Agent): Promise<void>;
+  getPostById(id: string): Promise<BlogPost>;
 }

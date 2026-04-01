@@ -24,7 +24,7 @@ export async function testBlogConnection(
     agent.infoMessage("📝 Creating test post...");
     const testPost = await blogService.createPost({
       title: `Blog Test - ${new Date().toISOString()}`,
-      content: "<p>This is a test post to validate blog connectivity.</p>",
+      html: "<p>This is a test post to validate blog connectivity.</p>",
       tags: ["test"]
     }, agent);
     agent.infoMessage(`Test post created with ID: ${testPost.id}`);
@@ -43,7 +43,7 @@ export async function testBlogConnection(
 
     // 4. Update post with image
     agent.infoMessage("🔄 Updating post with image...");
-    await blogService.updatePost({
+    await blogService.updateCurrentPost({
       feature_image: {
         id: uploadResult.id,
         url: uploadResult.url

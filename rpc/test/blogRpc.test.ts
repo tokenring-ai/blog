@@ -162,8 +162,8 @@ describe('Blog RPC Endpoints', () => {
       expect(result.post.tags).toEqual(['new']);
       expect(result.post.status).toBe('draft');
       expect(result.message).toContain('Post created with ID:');
-      expect(result.post.content).not.toContain('<h1>Header</h1>');
-      expect(result.post.content).toContain('<p>Content here</p>');
+      expect(result.post.html).not.toContain('<h1>Header</h1>');
+      expect(result.post.html).toContain('<p>Content here</p>');
     });
 
     it('should strip markdown headers from content', async () => {
@@ -176,8 +176,8 @@ describe('Blog RPC Endpoints', () => {
         app
       );
 
-      expect(result.post.content).not.toContain('# Title');
-      expect(result.post.content).toContain('Actual content');
+      expect(result.post.html).not.toContain('# Title');
+      expect(result.post.html).toContain('Actual content');
     });
   });
 
@@ -208,7 +208,7 @@ describe('Blog RPC Endpoints', () => {
         app
       );
 
-      expect(result.post.content).toContain('New content');
+      expect(result.post.html).toContain('New content');
     });
 
     it('should update post status', async () => {

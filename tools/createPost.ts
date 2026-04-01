@@ -18,7 +18,7 @@ async function execute(
 
   const post = await blogService.createPost({
     title,
-    content: marked(contentInMarkdown, { async: false}),
+    html: marked(contentInMarkdown, { async: false}),
     tags
   },agent);
 

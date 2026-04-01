@@ -8,8 +8,8 @@ async function execute({agent}: AgentCommandInputType<typeof inputSchema>): Prom
   const blogService = agent.requireServiceByType(BlogService);
   const currentPost = blogService.getCurrentPost(agent);
   if (!currentPost) return "No post is currently selected.\nUse /blog post select to choose a post.";
-  const wordCount = currentPost.content
-    ? currentPost.content.replace(/<[^>]*>/g, " ").split(/\s+/).filter(Boolean).length : 0;
+  const wordCount = currentPost.html
+    ? currentPost.html.replace(/<[^>]*>/g, " ").split(/\s+/).filter(Boolean).length : 0;
   const lines = [
     `Blog: ${agent.getState(BlogState).activeProvider}`,
     `Title: ${currentPost.title}`,

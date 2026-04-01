@@ -21,7 +21,7 @@ Here are the ${posts.length} most recent posts
 
 ${markdownTable(
   ["ID", "Title", "Created At", "Status"],
-  posts.map(post => [post.id, post.title, post.created_at.toISOString(), post.status]),
+  posts.map(post => [post.id, post.title, new Date(post.created_at).toISOString(), post.status]),
 )}
 
   `.trim();

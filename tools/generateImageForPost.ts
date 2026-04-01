@@ -20,7 +20,7 @@ async function execute(
 
   const activeBlog = blogService.requireActiveBlogProvider(agent);
 
-  const currentPost = activeBlog.getCurrentPost(agent);
+  const currentPost = blogService.getCurrentPost(agent);
   if (!currentPost) {
     throw new Error(`No post currently selected`);
   }
@@ -52,12 +52,12 @@ async function execute(
   agent.infoMessage(`[${name}] Image uploaded: ${uploadResult.url}`);
 
   // Update the current post with the featured image
-  await blogService.updatePost({
+  await blogService.updateCurrentPost({
     feature_image: {
       id: uploadResult.id,
       url: uploadResult.url
     }
-  },agent);
+  }, agent);
 
   return {
     type: 'json' as const,
