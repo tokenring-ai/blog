@@ -18,6 +18,7 @@ const packageConfigSchema = z.object({
 
 export default {
   name: packageJSON.name,
+  displayName: "Blog Service",
   version: packageJSON.version,
   description: packageJSON.description,
   install(app, config) {
