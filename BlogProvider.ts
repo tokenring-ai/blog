@@ -53,8 +53,7 @@ export type BlogPostFilterOptions = z.infer<typeof BlogPostFilterOptionsSchema>;
 
 export interface BlogProvider {
   description: string;
-  
-  imageGenerationModel: string;
+
   cdnName: string;
 
   getAllPosts(): Promise<BlogPostListItem[]>;

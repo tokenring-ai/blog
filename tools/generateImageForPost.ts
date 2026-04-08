@@ -1,9 +1,7 @@
 import Agent from "@tokenring-ai/agent/Agent";
-import {ImageGenerationModelRegistry} from "@tokenring-ai/ai-client/ModelRegistry";
 import CDNService from "@tokenring-ai/cdn/CDNService";
 import {TokenRingToolDefinition} from "@tokenring-ai/chat/schema";
-import {Buffer} from "node:buffer";
-import {v4 as uuid} from "uuid";
+import {ImageGenerationService} from "@tokenring-ai/image-generation";
 import {z} from "zod";
 import BlogService from "../BlogService.ts";
 
@@ -11,12 +9,12 @@ const name = "blog_generateImageForPost";
 const displayName = "Blog/generateImageForPost";
 
 async function execute(
-  {prompt, aspectRatio = "square"}: z.output<typeof inputSchema>,
+  args: z.output<typeof inputSchema>,
   agent: Agent,
 ) {
+  const imageService = agent.requireServiceByType(ImageGenerationService);
   const blogService = agent.requireServiceByType(BlogService);
   const cdnService = agent.requireServiceByType(CDNService);
-  const imageModelRegistry = agent.requireServiceByType(ImageGenerationModelRegistry);
 
   const activeBlog = blogService.requireActiveBlogProvider(agent);
 
@@ -26,26 +24,10 @@ async function execute(
   }
 
   agent.infoMessage(`[${name}] Generating image for post "${currentPost.title}"`);
+  const imageResult = await imageService.generateImage(args, agent);
 
-  const imageClient = await imageModelRegistry.getClient(activeBlog.imageGenerationModel);
-
-  let size: `${number}x${number}`;
-  switch (aspectRatio) {
-    case "square": size = "1024x1024"; break;
-    case "tall": size = "1024x1536"; break;
-    case "wide": size = "1536x1024"; break;
-    default: size = "1024x1024";
-  }
-
-  const [imageResult] = await imageClient.generateImage({prompt, size, n: 1}, agent);
-
-  const extension = imageResult.mediaType.split("/")[1];
-  const filename = `${uuid()}.${extension}`;
-  const imageBuffer = Buffer.from(imageResult.uint8Array);
-
-
-  const uploadResult = await cdnService.upload(activeBlog.cdnName, imageBuffer, {
-    filename,
+  const uploadResult = await cdnService.upload(activeBlog.cdnName, imageResult.buffer, {
+    filename: imageResult.fileName,
     contentType: imageResult.mediaType,
   });
 
@@ -73,7 +55,7 @@ const description = "Generate an AI image for the currently selected blog post";
 
 const inputSchema = z.object({
   prompt: z.string().describe("Description of the image to generate"),
-  aspectRatio: z.enum(["square", "tall", "wide"]).default("square").optional(),
+  aspectRatio: z.enum(["square", "tall", "wide"]).default("square"),
 });
 
 export default {
