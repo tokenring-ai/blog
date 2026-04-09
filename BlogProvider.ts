@@ -1,4 +1,4 @@
-import { z } from "zod";
+import {z} from "zod";
 
 export const BlogPostStatusSchema = z.enum(['draft', 'published', 'scheduled', 'pending', 'private']);
 

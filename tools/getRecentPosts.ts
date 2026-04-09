@@ -1,8 +1,8 @@
 import Agent from "@tokenring-ai/agent/Agent";
 import {TokenRingToolDefinition} from "@tokenring-ai/chat/schema";
+import markdownTable from "@tokenring-ai/utility/string/markdownTable";
 import {z} from "zod";
 import BlogService from "../BlogService.ts";
-import markdownTable from "@tokenring-ai/utility/string/markdownTable";
 
 const name = "blog_getRecentPosts";
 const displayName = "Blog/getRecentPosts";
