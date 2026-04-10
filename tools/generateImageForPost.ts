@@ -1,6 +1,6 @@
-import Agent from "@tokenring-ai/agent/Agent";
+import type Agent from "@tokenring-ai/agent/Agent";
 import CDNService from "@tokenring-ai/cdn/CDNService";
-import {TokenRingToolDefinition} from "@tokenring-ai/chat/schema";
+import type {TokenRingToolDefinition} from "@tokenring-ai/chat/schema";
 import {ImageGenerationService} from "@tokenring-ai/image-generation";
 import {z} from "zod";
 import BlogService from "../BlogService.ts";
@@ -8,10 +8,7 @@ import BlogService from "../BlogService.ts";
 const name = "blog_generateImageForPost";
 const displayName = "Blog/generateImageForPost";
 
-async function execute(
-  args: z.output<typeof inputSchema>,
-  agent: Agent,
-) {
+async function execute(args: z.output<typeof inputSchema>, agent: Agent) {
   const imageService = agent.requireServiceByType(ImageGenerationService);
   const blogService = agent.requireServiceByType(BlogService);
   const cdnService = agent.requireServiceByType(CDNService);
@@ -23,31 +20,40 @@ async function execute(
     throw new Error(`No post currently selected`);
   }
 
-  agent.infoMessage(`[${name}] Generating image for post "${currentPost.title}"`);
+  agent.infoMessage(
+    `[${name}] Generating image for post "${currentPost.title}"`,
+  );
   const imageResult = await imageService.generateImage(args, agent);
 
-  const uploadResult = await cdnService.upload(activeBlog.cdnName, imageResult.buffer, {
-    filename: imageResult.fileName,
-    contentType: imageResult.mediaType,
-  });
+  const uploadResult = await cdnService.upload(
+    activeBlog.cdnName,
+    imageResult.buffer,
+    {
+      filename: imageResult.fileName,
+      contentType: imageResult.mediaType,
+    },
+  );
 
   agent.infoMessage(`[${name}] Image uploaded: ${uploadResult.url}`);
 
   // Update the current post with the featured image
-  await blogService.updateCurrentPost({
-    feature_image: {
-      id: uploadResult.id,
-      url: uploadResult.url
-    }
-  }, agent);
+  await blogService.updateCurrentPost(
+    {
+      feature_image: {
+        id: uploadResult.id,
+        url: uploadResult.url,
+      },
+    },
+    agent,
+  );
 
   return {
-    type: 'json' as const,
+    type: "json" as const,
     data: {
       success: true,
       imageUrl: uploadResult.url,
       message: `Image generated and set as featured image for post "${currentPost.title}"`,
-    }
+    },
   };
 }
 
@@ -59,5 +65,9 @@ const inputSchema = z.object({
 });
 
 export default {
-  name, displayName, description, inputSchema, execute,
+  name,
+  displayName,
+  description,
+  inputSchema,
+  execute,
 } satisfies TokenRingToolDefinition<typeof inputSchema>;

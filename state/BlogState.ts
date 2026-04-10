@@ -1,18 +1,20 @@
-import {Agent} from "@tokenring-ai/agent";
+import type {Agent} from "@tokenring-ai/agent";
 import {AgentStateSlice} from "@tokenring-ai/agent/types";
 import {z} from "zod";
 import {type BlogPost, BlogPostSchema} from "../BlogProvider.ts";
-import {BlogAgentConfigSchema} from "../schema.ts";
+import type {BlogAgentConfigSchema} from "../schema.ts";
 
-const serializationSchema = z.object({
-  activeProvider: z.string().optional(),
-  reviewPatterns: z.array(z.string()).optional(),
-  reviewEscalationTarget: z.string().optional(),
-  currentPost: BlogPostSchema.optional(),
-}).prefault({});
+const serializationSchema = z
+  .object({
+    activeProvider: z.string().optional(),
+    reviewPatterns: z.array(z.string()).optional(),
+    reviewEscalationTarget: z.string().optional(),
+    currentPost: BlogPostSchema.optional(),
+  })
+  .prefault({});
 
 export class BlogState extends AgentStateSlice<typeof serializationSchema> {
-  activeProvider: string | undefined
+  activeProvider: string | undefined;
   reviewPatterns?: string[];
   reviewEscalationTarget?: string;
   currentPost: BlogPost | undefined;
@@ -29,7 +31,7 @@ export class BlogState extends AgentStateSlice<typeof serializationSchema> {
   }
 
   serialize(): z.output<typeof serializationSchema> {
-    return { 
+    return {
       activeProvider: this.activeProvider,
       reviewPatterns: this.reviewPatterns,
       reviewEscalationTarget: this.reviewEscalationTarget,
@@ -44,7 +46,7 @@ export class BlogState extends AgentStateSlice<typeof serializationSchema> {
     this.currentPost = data.currentPost;
   }
 
-  show(): string[] {
-    return [`Active Blog: ${this.activeProvider}`];
+  show(): string {
+    return `Active Blog: ${this.activeProvider}`;
   }
 }

@@ -1,8 +1,8 @@
-import Agent from "@tokenring-ai/agent/Agent";
-import {TokenRingToolDefinition} from "@tokenring-ai/chat/schema";
+import type Agent from "@tokenring-ai/agent/Agent";
+import type {TokenRingToolDefinition} from "@tokenring-ai/chat/schema";
 import {marked} from "marked";
 import {z} from "zod";
-import {UpdatePostData} from "../BlogProvider.ts";
+import type {UpdatePostData} from "../BlogProvider.ts";
 import BlogService from "../BlogService.ts";
 
 const name = "blog_updatePost";
@@ -21,14 +21,14 @@ async function execute(
 
   const update: UpdatePostData = {};
   if (title) update.title = title;
-  if (contentInMarkdown) update.html = marked(contentInMarkdown, { async: false});
+  if (contentInMarkdown)
+    update.html = marked(contentInMarkdown, {async: false});
   if (tags) update.tags = tags;
-
 
   const updatedPost = await blogService.updateCurrentPost(update, agent);
 
   agent.infoMessage(`[${name}] Post updated with ID: ${updatedPost.id}`);
-  return { type: 'json' as const, data: updatedPost };
+  return {type: "json" as const, data: updatedPost};
 }
 
 const description = "Update the currently selected blog post";
@@ -45,5 +45,9 @@ const inputSchema = z.object({
 });
 
 export default {
-  name, displayName, description, inputSchema, execute,
+  name,
+  displayName,
+  description,
+  inputSchema,
+  execute,
 } satisfies TokenRingToolDefinition<typeof inputSchema>;

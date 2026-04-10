@@ -1,13 +1,13 @@
-import Agent from "@tokenring-ai/agent/Agent";
+import type Agent from "@tokenring-ai/agent/Agent";
 import CDNService from "@tokenring-ai/cdn/CDNService";
 import {readFileSync} from "node:fs";
 import {resolve} from "node:path";
 import {v4 as uuid} from "uuid";
-import BlogService from "../BlogService.ts";
+import type BlogService from "../BlogService.ts";
 
 export async function testBlogConnection(
   blogService: BlogService,
-  agent: Agent
+  agent: Agent,
 ): Promise<void> {
   try {
     const activeBlog = blogService.requireActiveBlogProvider(agent);
@@ -22,11 +22,14 @@ export async function testBlogConnection(
 
     // 2. Create test post
     agent.infoMessage("📝 Creating test post...");
-    const testPost = await blogService.createPost({
-      title: `Blog Test - ${new Date().toISOString()}`,
-      html: "<p>This is a test post to validate blog connectivity.</p>",
-      tags: ["test"]
-    }, agent);
+    const testPost = await blogService.createPost(
+      {
+        title: `Blog Test - ${new Date().toISOString()}`,
+        html: "<p>This is a test post to validate blog connectivity.</p>",
+        tags: ["test"],
+      },
+      agent,
+    );
     agent.infoMessage(`Test post created with ID: ${testPost.id}`);
 
     // 3. Upload hello.png image
@@ -35,20 +38,29 @@ export async function testBlogConnection(
     const imageBuffer = readFileSync(imagePath);
     const filename = `test-${uuid()}.png`;
 
-    const uploadResult = await cdnService.upload(activeBlog.cdnName, imageBuffer, {
-      filename,
-      contentType: "image/png",
-    });
-    agent.infoMessage(`Image uploaded: ${uploadResult.url}, id: ${uploadResult.id}`);
+    const uploadResult = await cdnService.upload(
+      activeBlog.cdnName,
+      imageBuffer,
+      {
+        filename,
+        contentType: "image/png",
+      },
+    );
+    agent.infoMessage(
+      `Image uploaded: ${uploadResult.url}, id: ${uploadResult.id}`,
+    );
 
     // 4. Update post with image
     agent.infoMessage("🔄 Updating post with image...");
-    await blogService.updateCurrentPost({
-      feature_image: {
-        id: uploadResult.id,
-        url: uploadResult.url
-      }
-    }, agent);
+    await blogService.updateCurrentPost(
+      {
+        feature_image: {
+          id: uploadResult.id,
+          url: uploadResult.url,
+        },
+      },
+      agent,
+    );
     agent.infoMessage(`Post updated with featured image`);
 
     agent.infoMessage("✅ Blog connection test completed successfully!");

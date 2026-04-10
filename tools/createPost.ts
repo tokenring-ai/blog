@@ -1,5 +1,5 @@
-import Agent from "@tokenring-ai/agent/Agent";
-import {TokenRingToolDefinition} from "@tokenring-ai/chat/schema";
+import type Agent from "@tokenring-ai/agent/Agent";
+import type {TokenRingToolDefinition} from "@tokenring-ai/chat/schema";
 import {marked} from "marked";
 import {z} from "zod";
 import BlogService from "../BlogService.ts";
@@ -16,14 +16,17 @@ async function execute(
   // Strip the header from the post;
   contentInMarkdown = contentInMarkdown.replace(/^\s*#.*/, "").trim();
 
-  const post = await blogService.createPost({
-    title,
-    html: marked(contentInMarkdown, { async: false}),
-    tags
-  },agent);
+  const post = await blogService.createPost(
+    {
+      title,
+      html: marked(contentInMarkdown, {async: false}),
+      tags,
+    },
+    agent,
+  );
 
   agent.infoMessage(`[${name}] Post created with ID: ${post.id}`);
-  return { type: 'json' as const, data: post };
+  return {type: "json" as const, data: post};
 }
 
 const description = "Create a new blog post";
@@ -35,9 +38,13 @@ const inputSchema = z.object({
     .describe(
       "The content of the post in Markdown format. The title of the post goes in the title tag, NOT inside the content",
     ),
-  tags: z.array(z.string()).describe("Tags for the post").optional()
+  tags: z.array(z.string()).describe("Tags for the post").optional(),
 });
 
 export default {
-  name, displayName, description, inputSchema, execute,
+  name,
+  displayName,
+  description,
+  inputSchema,
+  execute,
 } satisfies TokenRingToolDefinition<typeof inputSchema>;

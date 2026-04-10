@@ -1,4 +1,4 @@
-import {RPCSchema} from "@tokenring-ai/rpc/types";
+import type {RPCSchema} from "@tokenring-ai/rpc/types";
 import {z} from "zod";
 import {BlogPostListItemSchema, BlogPostSchema} from "../BlogProvider.ts";
 
@@ -19,7 +19,7 @@ export default {
         count: z.number(),
         currentlySelected: z.string().nullable(),
         message: z.string(),
-      })
+      }),
     },
     createPost: {
       type: "mutation",
@@ -32,19 +32,19 @@ export default {
       result: z.object({
         post: BlogPostSchema,
         message: z.string(),
-      })
+      }),
     },
     updatePost: {
       type: "mutation",
       input: z.object({
         provider: z.string(),
         id: z.string(),
-        updatedData: BlogPostSchema.omit(["id"]).partial()
+        updatedData: BlogPostSchema.omit(["id"]).partial(),
       }),
       result: z.object({
         post: BlogPostSchema,
         message: z.string(),
-      })
+      }),
     },
     getPostById: {
       type: "query",
@@ -55,7 +55,7 @@ export default {
       result: z.object({
         post: BlogPostSchema,
         message: z.string(),
-      })
+      }),
     },
     getBlogState: {
       type: "query",
@@ -66,7 +66,7 @@ export default {
         selectedPostId: z.string().nullable(),
         selectedProvider: z.string().nullable(),
         availableProviders: z.array(z.string()),
-      })
+      }),
     },
     updateBlogState: {
       type: "mutation",
@@ -79,7 +79,7 @@ export default {
         selectedPostId: z.string().nullable(),
         selectedProvider: z.string().nullable(),
         availableProviders: z.array(z.string()),
-      })
-    }
-  }
+      }),
+    },
+  },
 } satisfies RPCSchema;

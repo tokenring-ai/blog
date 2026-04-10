@@ -1,5 +1,5 @@
 import {CommandFailedError} from "@tokenring-ai/agent/AgentError";
-import {AgentCommandInputSchema, AgentCommandInputType, TokenRingAgentCommand} from "@tokenring-ai/agent/types";
+import type {AgentCommandInputSchema, AgentCommandInputType, TokenRingAgentCommand,} from "@tokenring-ai/agent/types";
 import BlogService from "../../../BlogService.ts";
 
 const inputSchema = {
@@ -10,13 +10,17 @@ const inputSchema = {
       description: "The provider name to set",
       required: true,
     },
-  ]
+  ],
 } as const satisfies AgentCommandInputSchema;
 
-async function execute({positionals, agent}: AgentCommandInputType<typeof inputSchema>): Promise<string> {
+function execute({
+                   positionals,
+                   agent,
+                 }: AgentCommandInputType<typeof inputSchema>): string {
   const blogService = agent.requireServiceByType(BlogService);
   const providerName = positionals.name;
-  if (!providerName) throw new CommandFailedError("Usage: /blog provider set <name>");
+  if (!providerName)
+    throw new CommandFailedError("Usage: /blog provider set <name>");
   const available = blogService.getAvailableBlogs();
   if (available.includes(providerName)) {
     blogService.setActiveProvider(providerName, agent);
@@ -31,4 +35,10 @@ const help = `Set the active blog provider by name.
 
 /blog provider set wordpress`;
 
-export default {name: "blog provider set", description: "Set the active provider", inputSchema, help, execute} satisfies TokenRingAgentCommand<typeof inputSchema>;
+export default {
+  name: "blog provider set",
+  description: "Set the active provider",
+  inputSchema,
+  help,
+  execute,
+} satisfies TokenRingAgentCommand<typeof inputSchema>;

@@ -1,6 +1,12 @@
 import {z} from "zod";
 
-export const BlogPostStatusSchema = z.enum(['draft', 'published', 'scheduled', 'pending', 'private']);
+export const BlogPostStatusSchema = z.enum([
+  "draft",
+  "published",
+  "scheduled",
+  "pending",
+  "private",
+]);
 
 export const BlogPostListItemSchema = z.object({
   id: z.string(),
@@ -10,14 +16,15 @@ export const BlogPostListItemSchema = z.object({
   created_at: z.number(), // Unix timestamp in milliseconds
   updated_at: z.number(),
   published_at: z.number().optional(),
-  feature_image: z.object({
-    id: z.string().optional(),
-    url: z.string().optional(),
-  }).optional(),
+  feature_image: z
+    .object({
+      id: z.string().optional(),
+      url: z.string().optional(),
+    })
+    .optional(),
   url: z.string().optional(),
 });
 export type BlogPostListItem = z.infer<typeof BlogPostListItemSchema>;
-
 
 export const BlogPostSchema = BlogPostListItemSchema.extend({
   html: z.string(),

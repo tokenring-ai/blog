@@ -1,5 +1,5 @@
-import Agent from "@tokenring-ai/agent/Agent";
-import {TokenRingToolDefinition} from "@tokenring-ai/chat/schema";
+import type Agent from "@tokenring-ai/agent/Agent";
+import type {TokenRingToolDefinition} from "@tokenring-ai/chat/schema";
 import markdownTable from "@tokenring-ai/utility/string/markdownTable";
 import {z} from "zod";
 import BlogService from "../BlogService.ts";
@@ -14,20 +14,29 @@ async function execute(
   const blogService = agent.requireServiceByType(BlogService);
   if (status === "all") status = undefined;
 
-  let posts = await blogService.getRecentPosts({ status, keyword, limit}, agent);
+  const posts = await blogService.getRecentPosts(
+    {status, keyword, limit},
+    agent,
+  );
 
   return `
 Here are the ${posts.length} most recent posts
 
 ${markdownTable(
-  ["ID", "Title", "Created At", "Status"],
-  posts.map(post => [post.id, post.title, new Date(post.created_at).toISOString(), post.status]),
+    ["ID", "Title", "Created At", "Status"],
+    posts.map((post) => [
+      post.id,
+      post.title,
+      new Date(post.created_at).toISOString(),
+      post.status,
+    ]),
 )}
 
   `.trim();
 }
 
-const description = "Retrieves the most recent published posts, optionally filtered by status and keyword";
+const description =
+  "Retrieves the most recent published posts, optionally filtered by status and keyword";
 
 const inputSchema = z.object({
   status: z.enum(["draft", "published", "all"]).optional(),
@@ -36,5 +45,9 @@ const inputSchema = z.object({
 });
 
 export default {
-  name, displayName, description, inputSchema, execute,
+  name,
+  displayName,
+  description,
+  inputSchema,
+  execute,
 } satisfies TokenRingToolDefinition<typeof inputSchema>;

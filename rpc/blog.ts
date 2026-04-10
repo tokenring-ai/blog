@@ -1,5 +1,5 @@
 import {AgentManager} from "@tokenring-ai/agent";
-import TokenRingApp from "@tokenring-ai/app";
+import type TokenRingApp from "@tokenring-ai/app";
 import {createRPCEndpoint} from "@tokenring-ai/rpc/createRPCEndpoint";
 import {marked} from "marked";
 import BlogService from "../BlogService.ts";
@@ -14,11 +14,11 @@ export default createRPCEndpoint(BlogRpcSchema, {
     let posts = await blogProvider.getAllPosts();
 
     if (args.status && args.status !== "all") {
-      posts = posts.filter(post => post.status === args.status);
+      posts = posts.filter((post) => post.status === args.status);
     }
 
     if (args.tag) {
-      posts = posts.filter(post => post.tags?.some(t => t === args.tag));
+      posts = posts.filter((post) => post.tags?.some((t) => t === args.tag));
     }
 
     const limit = args.limit || 10;
@@ -36,7 +36,9 @@ export default createRPCEndpoint(BlogRpcSchema, {
     const blogService = app.requireService(BlogService);
     const blogProvider = blogService.requireBlogProvider(args.provider);
 
-    let contentInMarkdown = args.contentInMarkdown.replace(/^\s*#.*/, "").trim();
+    const contentInMarkdown = args.contentInMarkdown
+      .replace(/^\s*#.*/, "")
+      .trim();
 
     const post = await blogProvider.createPost({
       title: args.title,
@@ -74,7 +76,7 @@ export default createRPCEndpoint(BlogRpcSchema, {
     };
   },
 
-  async getBlogState(args, app: TokenRingApp) {
+  getBlogState(args, app: TokenRingApp) {
     const agent = app.requireService(AgentManager).getAgent(args.agentId);
     if (!agent) throw new Error("Agent not found");
     const blogService = app.requireService(BlogService);
