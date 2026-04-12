@@ -4,7 +4,6 @@ import {ImageGenerationModelRegistry} from "@tokenring-ai/ai-client/ModelRegistr
 import TokenRingApp from "@tokenring-ai/app";
 import createTestingApp from "@tokenring-ai/app/test/createTestingApp";
 import CDNService from "@tokenring-ai/cdn/CDNService";
-import {GeneratedFile} from "ai";
 import {beforeEach, describe, expect, it, vi} from 'vitest';
 import {BlogProvider} from "../../BlogProvider";
 import BlogService from "../../BlogService.ts";
@@ -334,12 +333,12 @@ describe('Blog RPC Endpoints', () => {
 
     it('should generate and set image for post', async () => {
       vi.spyOn(imageGenerationModelRegistry, 'getClient').mockResolvedValue({
-        generateImage: () => {
+        generateImage: async (request, agent) => {
           return [{
             mediaType: 'image/png',
             base64: 'foo',
             uint8Array: new Uint8Array([1, 2, 3]),
-          } satisfies GeneratedFile];
+          }];
         }
       });
 
