@@ -6,7 +6,7 @@ import type {CommunicationChannel} from "@tokenring-ai/escalation/EscalationProv
 import deepMerge from "@tokenring-ai/utility/object/deepMerge";
 import KeyedRegistry from "@tokenring-ai/utility/registry/KeyedRegistry";
 import type {z} from "zod";
-import type {BlogPost, BlogPostFilterOptions, BlogPostListItem, BlogProvider, CreatePostData, UpdatePostData,} from "./BlogProvider.ts";
+import type {BlogPost, BlogPostFilterOptions, BlogPostListItem, BlogProvider, CreatePostData, UpdatePostData} from "./BlogProvider.ts";
 import {BlogAgentConfigSchema, type BlogConfigSchema} from "./schema.ts";
 import {BlogState} from "./state/BlogState.ts";
 

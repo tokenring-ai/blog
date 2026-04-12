@@ -1,34 +1,24 @@
 import type Agent from "@tokenring-ai/agent/Agent";
-import type {TokenRingToolDefinition} from "@tokenring-ai/chat/schema";
+import type {TokenRingToolDefinition, TokenRingToolResult} from "@tokenring-ai/chat/schema";
 import {z} from "zod";
 import BlogService from "../BlogService.ts";
 
 const name = "blog_getCurrentPost";
 const displayName = "Blog/getCurrentPost";
 
-function execute(_args: z.output<typeof inputSchema>, agent: Agent) {
+function execute(_args: z.output<typeof inputSchema>, agent: Agent): TokenRingToolResult {
   const blogService = agent.requireServiceByType(BlogService);
   const currentPost = blogService.getCurrentPost(agent);
 
   if (!currentPost) {
-    return {
-      type: "json" as const,
-      data: {
-        success: false,
-        error: "No post is currently selected",
-        suggestion: "Select a post first using the selectPost tool",
-      },
-    };
+    throw new Error("No post is currently selected. Select a post first using the selectPost tool");
   }
 
-  return {
-    type: "json" as const,
-    data: {
-      success: true,
-      post: currentPost,
-      message: `Currently selected: "${currentPost.title}" (${currentPost.status})`,
-    },
-  };
+  return JSON.stringify({
+    success: true,
+    post: currentPost,
+    message: `Currently selected: "${currentPost.title}" (${currentPost.status})`,
+  });
 }
 
 const description = "Get the currently selected post from a blog service";

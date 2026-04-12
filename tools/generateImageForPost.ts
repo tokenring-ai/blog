@@ -1,6 +1,6 @@
 import type Agent from "@tokenring-ai/agent/Agent";
 import CDNService from "@tokenring-ai/cdn/CDNService";
-import type {TokenRingToolDefinition} from "@tokenring-ai/chat/schema";
+import type {TokenRingToolDefinition, TokenRingToolResult} from "@tokenring-ai/chat/schema";
 import {ImageGenerationService} from "@tokenring-ai/image-generation";
 import {z} from "zod";
 import BlogService from "../BlogService.ts";
@@ -8,7 +8,7 @@ import BlogService from "../BlogService.ts";
 const name = "blog_generateImageForPost";
 const displayName = "Blog/generateImageForPost";
 
-async function execute(args: z.output<typeof inputSchema>, agent: Agent) {
+async function execute(args: z.output<typeof inputSchema>, agent: Agent): Promise<TokenRingToolResult> {
   const imageService = agent.requireServiceByType(ImageGenerationService);
   const blogService = agent.requireServiceByType(BlogService);
   const cdnService = agent.requireServiceByType(CDNService);
@@ -47,14 +47,11 @@ async function execute(args: z.output<typeof inputSchema>, agent: Agent) {
     agent,
   );
 
-  return {
-    type: "json" as const,
-    data: {
-      success: true,
-      imageUrl: uploadResult.url,
-      message: `Image generated and set as featured image for post "${currentPost.title}"`,
-    },
-  };
+  return JSON.stringify({
+    success: true,
+    imageUrl: uploadResult.url,
+    message: `Image generated and set as featured image for post "${currentPost.title}"`,
+  });
 }
 
 const description = "Generate an AI image for the currently selected blog post";

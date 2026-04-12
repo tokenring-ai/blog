@@ -1,5 +1,5 @@
 import type Agent from "@tokenring-ai/agent/Agent";
-import type {TokenRingToolDefinition} from "@tokenring-ai/chat/schema";
+import type {TokenRingToolDefinition, TokenRingToolResult} from "@tokenring-ai/chat/schema";
 import {marked} from "marked";
 import {z} from "zod";
 import BlogService from "../BlogService.ts";
@@ -10,7 +10,7 @@ const displayName = "Blog/createPost";
 async function execute(
   {title, contentInMarkdown, tags}: z.output<typeof inputSchema>,
   agent: Agent,
-) {
+): Promise<TokenRingToolResult> {
   const blogService = agent.requireServiceByType(BlogService);
 
   // Strip the header from the post;
@@ -26,7 +26,7 @@ async function execute(
   );
 
   agent.infoMessage(`[${name}] Post created with ID: ${post.id}`);
-  return {type: "json" as const, data: post};
+  return JSON.stringify(post);
 }
 
 const description = "Create a new blog post";

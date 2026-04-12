@@ -1,12 +1,12 @@
 import type Agent from "@tokenring-ai/agent/Agent";
-import type {TokenRingToolDefinition} from "@tokenring-ai/chat/schema";
+import type {TokenRingToolDefinition, TokenRingToolResult} from "@tokenring-ai/chat/schema";
 import {z} from "zod";
 import BlogService from "../BlogService.ts";
 
 const name = "blog_selectPost";
 const displayName = "Blog/selectPost";
 
-async function execute({id}: z.output<typeof inputSchema>, agent: Agent) {
+async function execute({id}: z.output<typeof inputSchema>, agent: Agent): Promise<TokenRingToolResult> {
   const blogService = agent.requireServiceByType(BlogService);
 
   const post = await blogService.selectPostById(id, agent);

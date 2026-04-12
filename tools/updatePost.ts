@@ -1,5 +1,5 @@
 import type Agent from "@tokenring-ai/agent/Agent";
-import type {TokenRingToolDefinition} from "@tokenring-ai/chat/schema";
+import type {TokenRingToolDefinition, TokenRingToolResult} from "@tokenring-ai/chat/schema";
 import {marked} from "marked";
 import {z} from "zod";
 import type {UpdatePostData} from "../BlogProvider.ts";
@@ -11,7 +11,7 @@ const displayName = "Blog/updatePost";
 async function execute(
   {title, contentInMarkdown, tags}: z.output<typeof inputSchema>,
   agent: Agent,
-) {
+): Promise<TokenRingToolResult> {
   const blogService = agent.requireServiceByType(BlogService);
 
   if (contentInMarkdown) {
@@ -27,8 +27,7 @@ async function execute(
 
   const updatedPost = await blogService.updateCurrentPost(update, agent);
 
-  agent.infoMessage(`[${name}] Post updated with ID: ${updatedPost.id}`);
-  return {type: "json" as const, data: updatedPost};
+  return JSON.stringify(updatedPost);
 }
 
 const description = "Update the currently selected blog post";

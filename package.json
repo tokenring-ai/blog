@@ -14,7 +14,7 @@
     "@tokenring-ai/scripting": "0.2.0",
     "@tokenring-ai/escalation": "0.2.0",
     "@tokenring-ai/image-generation": "0.2.0",
-    "marked": "^17.0.5",
+    "marked": "^17.0.6",
     "uuid": "^13.0.0"
   },
   "exports": {
