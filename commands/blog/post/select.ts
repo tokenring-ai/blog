@@ -30,12 +30,12 @@ async function execute({
     });
     if (!selection) return "Post selection cancelled.";
     if (selection.length === 0) {
-      await blogService.clearCurrentPost(agent);
+      blogService.clearCurrentPost(agent);
       return "Post selection cleared.";
     }
     const post = await blogService.selectPostById(selection[0], agent);
     return `Selected post: "${post.title}"`;
-  } catch (error) {
+  } catch (error: unknown) {
     throw new CommandFailedError(
       `Error during post selection: ${error instanceof Error ? error.message : String(error)}`,
     );

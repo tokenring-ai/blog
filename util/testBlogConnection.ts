@@ -64,7 +64,7 @@ export async function testBlogConnection(
     agent.infoMessage(`Post updated with featured image`);
 
     agent.infoMessage("✅ Blog connection test completed successfully!");
-  } catch (error) {
+  } catch (error: unknown) {
     agent.errorMessage("❌ Blog connection test failed:", error as Error);
   }
 }
