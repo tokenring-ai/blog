@@ -118,5 +118,5 @@ export default function createTestBlogService(app: TokenRingApp) {
     blogService.registerBlog("test", testProvider);
   }
 
-  return { blogService, testProvider: blogService.providers.requireItemByName("test") };
+  return { blogService, testProvider: blogService.providers.require("test") };
 }

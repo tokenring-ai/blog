@@ -16,10 +16,10 @@ export default class BlogService implements TokenRingService {
 
   private providers = new KeyedRegistry<BlogProvider>();
 
-  registerBlog = this.providers.register;
-  getAvailableBlogs = this.providers.getAllItemNames;
-  getBlogProvider = this.providers.getItemByName;
-  requireBlogProvider = this.providers.requireItemByName;
+  registerBlog = this.providers.set;
+  getAvailableBlogs = this.providers.keysArray;
+  getBlogProvider = this.providers.get;
+  requireBlogProvider = this.providers.require;
 
   constructor(readonly options: z.output<typeof BlogConfigSchema>) {
   }
@@ -39,7 +39,7 @@ export default class BlogService implements TokenRingService {
     const activeProvider = agent.getState(BlogState).activeProvider;
     if (!activeProvider)
       throw new Error("No blog provider is currently selected");
-    return this.providers.requireItemByName(activeProvider);
+    return this.providers.require(activeProvider);
   }
 
   setActiveProvider(name: string, agent: Agent): void {
