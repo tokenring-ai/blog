@@ -1,12 +1,10 @@
-import type {AgentCommandInputSchema, AgentCommandInputType, TokenRingAgentCommand} from "@tokenring-ai/agent/types";
+import type { AgentCommandInputSchema, AgentCommandInputType, TokenRingAgentCommand } from "@tokenring-ai/agent/types";
 import BlogService from "../../BlogService.ts";
-import {testBlogConnection} from "../../util/testBlogConnection.ts";
+import { testBlogConnection } from "../../util/testBlogConnection.ts";
 
 const inputSchema = {} as const satisfies AgentCommandInputSchema;
 
-async function execute({
-                         agent,
-                       }: AgentCommandInputType<typeof inputSchema>): Promise<string> {
+async function execute({ agent }: AgentCommandInputType<typeof inputSchema>): Promise<string> {
   await testBlogConnection(agent.requireServiceByType(BlogService), agent);
   return "Blog test was successful";
 }

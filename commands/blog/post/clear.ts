@@ -1,11 +1,9 @@
-import type {AgentCommandInputSchema, AgentCommandInputType, TokenRingAgentCommand} from "@tokenring-ai/agent/types";
+import type { AgentCommandInputSchema, AgentCommandInputType, TokenRingAgentCommand } from "@tokenring-ai/agent/types";
 import BlogService from "../../../BlogService.ts";
 
 const inputSchema = {} as const satisfies AgentCommandInputSchema;
 
-function execute({
-                         agent,
-                       }: AgentCommandInputType<typeof inputSchema>) {
+function execute({ agent }: AgentCommandInputType<typeof inputSchema>) {
   agent.requireServiceByType(BlogService).clearCurrentPost(agent);
   return "Post cleared. No post is currently selected. Use /blog post select to choose a post.";
 }

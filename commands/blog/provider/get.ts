@@ -1,11 +1,9 @@
-import type {AgentCommandInputSchema, AgentCommandInputType, TokenRingAgentCommand} from "@tokenring-ai/agent/types";
-import {BlogState} from "../../../state/BlogState.ts";
+import type { AgentCommandInputSchema, AgentCommandInputType, TokenRingAgentCommand } from "@tokenring-ai/agent/types";
+import { BlogState } from "../../../state/BlogState.ts";
 
 const inputSchema = {} as const satisfies AgentCommandInputSchema;
 
-function execute({
-                   agent,
-                 }: AgentCommandInputType<typeof inputSchema>): string {
+function execute({ agent }: AgentCommandInputType<typeof inputSchema>): string {
   return `Current provider: ${agent.getState(BlogState).activeProvider ?? "(none)"}`;
 }
 

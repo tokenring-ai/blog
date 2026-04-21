@@ -5,11 +5,4 @@ import getRecentPosts from "./tools/getRecentPosts.ts";
 import selectPost from "./tools/selectPost.ts";
 import updatePost from "./tools/updatePost.ts";
 
-export default [
-  createPost,
-  updatePost,
-  getRecentPosts,
-  getCurrentPost,
-  generateImageForPost,
-  selectPost,
-];
+export default [createPost, updatePost, getRecentPosts, getCurrentPost, generateImageForPost, selectPost];

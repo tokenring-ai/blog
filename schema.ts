@@ -1,11 +1,11 @@
-import {z} from "zod";
+import { z } from "zod";
 
 export const BlogAgentConfigSchema = z
   .object({
-    provider: z.string().optional(),
-    imageModel: z.string().optional(),
-    reviewPatterns: z.array(z.string()).optional(),
-    reviewEscalationTarget: z.string().optional(),
+    provider: z.string().exactOptional(),
+    imageModel: z.string().exactOptional(),
+    reviewPatterns: z.array(z.string()).exactOptional(),
+    reviewEscalationTarget: z.string().exactOptional(),
   })
   .default({});
 

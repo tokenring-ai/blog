@@ -1,18 +1,14 @@
-import type {AgentCommandInputSchema, AgentCommandInputType, TokenRingAgentCommand} from "@tokenring-ai/agent/types";
+import type { AgentCommandInputSchema, AgentCommandInputType, TokenRingAgentCommand } from "@tokenring-ai/agent/types";
 import BlogService from "../../../BlogService.ts";
-import {BlogState} from "../../../state/BlogState.ts";
+import { BlogState } from "../../../state/BlogState.ts";
 
 const inputSchema = {} as const satisfies AgentCommandInputSchema;
 
-function execute({
-                   agent,
-                 }: AgentCommandInputType<typeof inputSchema>): string {
+function execute({ agent }: AgentCommandInputType<typeof inputSchema>): string {
   const available = agent.requireServiceByType(BlogService).getAvailableBlogs();
   if (available.length === 0) return "No blog providers are registered.";
   const active = agent.getState(BlogState).activeProvider;
-  return available
-    .map((name) => `${name}${name === active ? " (active)" : ""}`)
-    .join("\n");
+  return available.map(name => `${name}${name === active ? " (active)" : ""}`).join("\n");
 }
 
 export default {

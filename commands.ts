@@ -10,16 +10,4 @@ import providerSelect from "./commands/blog/provider/select.ts";
 import providerSet from "./commands/blog/provider/set.ts";
 import test from "./commands/blog/test.ts";
 
-export default [
-  providerGet,
-  providerList,
-  providerSet,
-  providerSelect,
-  providerReset,
-  postGet,
-  postSelect,
-  postInfo,
-  postClear,
-  postPublish,
-  test,
-];
+export default [providerGet, providerList, providerSet, providerSelect, providerReset, postGet, postSelect, postInfo, postClear, postPublish, test];

@@ -1,21 +1,18 @@
-import type {AgentCommandInputSchema, AgentCommandInputType, TokenRingAgentCommand} from "@tokenring-ai/agent/types";
+import type { AgentCommandInputSchema, AgentCommandInputType, TokenRingAgentCommand } from "@tokenring-ai/agent/types";
 import BlogService from "../../../BlogService.ts";
-import {BlogState} from "../../../state/BlogState.ts";
+import { BlogState } from "../../../state/BlogState.ts";
 
 const inputSchema = {} as const satisfies AgentCommandInputSchema;
 
-function execute({
-                   agent,
-                 }: AgentCommandInputType<typeof inputSchema>): string {
+function execute({ agent }: AgentCommandInputType<typeof inputSchema>): string {
   const blogService = agent.requireServiceByType(BlogService);
   const currentPost = blogService.getCurrentPost(agent);
-  if (!currentPost)
-    return "No post is currently selected.\nUse /blog post select to choose a post.";
+  if (!currentPost) return "No post is currently selected.\nUse /blog post select to choose a post.";
   const wordCount = currentPost.html
     ? currentPost.html
-      .replace(/<[^>]*>/g, " ")
-      .split(/\s+/)
-      .filter(Boolean).length
+        .replace(/<[^>]*>/g, " ")
+        .split(/\s+/)
+        .filter(Boolean).length
     : 0;
   const lines = [
     `Blog: ${agent.getState(BlogState).activeProvider}`,
@@ -25,8 +22,7 @@ function execute({
     `Updated: ${new Date(currentPost.updated_at).toLocaleString()}`,
     `Word count (approx.): ${wordCount}`,
   ];
-  if (currentPost.tags?.length)
-    lines.push(`Tags: ${currentPost.tags.join(", ")}`);
+  if (currentPost.tags?.length) lines.push(`Tags: ${currentPost.tags.join(", ")}`);
   if (currentPost.url) lines.push(`URL: ${currentPost.url}`);
   return lines.join("\n");
 }

@@ -1,24 +1,21 @@
-import {CommandFailedError} from "@tokenring-ai/agent/AgentError";
-import type {TreeLeaf} from "@tokenring-ai/agent/question";
-import type {AgentCommandInputSchema, AgentCommandInputType, TokenRingAgentCommand} from "@tokenring-ai/agent/types";
+import { CommandFailedError } from "@tokenring-ai/agent/AgentError";
+import type { TreeLeaf } from "@tokenring-ai/agent/question";
+import type { AgentCommandInputSchema, AgentCommandInputType, TokenRingAgentCommand } from "@tokenring-ai/agent/types";
 import BlogService from "../../../BlogService.ts";
 
 const inputSchema = {} as const satisfies AgentCommandInputSchema;
 
-async function execute({
-                         agent,
-                       }: AgentCommandInputType<typeof inputSchema>): Promise<string> {
+async function execute({ agent }: AgentCommandInputType<typeof inputSchema>): Promise<string> {
   const blogService = agent.requireServiceByType(BlogService);
   try {
     const posts = await blogService.getAllPosts(agent);
     if (!posts?.length) return `No posts found.`;
-    const tree: TreeLeaf[] = posts.map((post) => ({
+    const tree: TreeLeaf[] = posts.map(post => ({
       name: `${post.status === "published" ? "📝" : "🔒"} ${post.title} (${new Date(post.updated_at).toLocaleDateString()})`,
       value: post.id,
     }));
     const selection = await agent.askQuestion({
-      message:
-        "Choose a post to work with or select 'Clear selection' to start fresh",
+      message: "Choose a post to work with or select 'Clear selection' to start fresh",
       question: {
         type: "treeSelect",
         label: "Post Selection",
@@ -36,9 +33,7 @@ async function execute({
     const post = await blogService.selectPostById(selection[0], agent);
     return `Selected post: "${post.title}"`;
   } catch (error: unknown) {
-    throw new CommandFailedError(
-      `Error during post selection: ${error instanceof Error ? error.message : String(error)}`,
-    );
+    throw new CommandFailedError(`Error during post selection: ${error instanceof Error ? error.message : String(error)}`);
   }
 }
 

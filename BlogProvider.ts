@@ -1,28 +1,22 @@
-import {z} from "zod";
+import { z } from "zod";
 
-export const BlogPostStatusSchema = z.enum([
-  "draft",
-  "published",
-  "scheduled",
-  "pending",
-  "private",
-]);
+export const BlogPostStatusSchema = z.enum(["draft", "published", "scheduled", "pending", "private"]);
 
 export const BlogPostListItemSchema = z.object({
   id: z.string(),
   title: z.string(),
   status: BlogPostStatusSchema,
-  tags: z.array(z.string()).optional(),
+  tags: z.array(z.string()).exactOptional(),
   created_at: z.number(), // Unix timestamp in milliseconds
   updated_at: z.number(),
-  published_at: z.number().optional(),
+  published_at: z.number().exactOptional(),
   feature_image: z
     .object({
-      id: z.string().optional(),
-      url: z.string().optional(),
+      id: z.string().exactOptional(),
+      url: z.string().exactOptional(),
     })
-    .optional(),
-  url: z.string().optional(),
+    .exactOptional(),
+  url: z.string().exactOptional(),
 });
 export type BlogPostListItem = z.infer<typeof BlogPostListItemSchema>;
 
@@ -51,9 +45,9 @@ export const UpdatePostDataSchema = BlogPostSchema.omit({
 export type UpdatePostData = z.infer<typeof UpdatePostDataSchema>;
 
 export const BlogPostFilterOptionsSchema = z.object({
-  keyword: z.string().optional(),
-  limit: z.number().optional(),
-  status: BlogPostStatusSchema.optional(),
+  keyword: z.string().exactOptional(),
+  limit: z.number().exactOptional(),
+  status: BlogPostStatusSchema.exactOptional(),
 });
 
 export type BlogPostFilterOptions = z.infer<typeof BlogPostFilterOptionsSchema>;

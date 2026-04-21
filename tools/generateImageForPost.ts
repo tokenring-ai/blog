@@ -1,8 +1,9 @@
 import type Agent from "@tokenring-ai/agent/Agent";
 import CDNService from "@tokenring-ai/cdn/CDNService";
-import type {TokenRingToolDefinition, TokenRingToolResult} from "@tokenring-ai/chat/schema";
-import {ImageGenerationService} from "@tokenring-ai/image-generation";
-import {z} from "zod";
+import type { TokenRingToolDefinition, TokenRingToolResult } from "@tokenring-ai/chat/schema";
+import { ImageGenerationService } from "@tokenring-ai/image-generation";
+import { stripUndefinedKeys } from "@tokenring-ai/utility/object/stripObject";
+import { z } from "zod";
 import BlogService from "../BlogService.ts";
 
 const name = "blog_generateImageForPost";
@@ -20,29 +21,23 @@ async function execute(args: z.output<typeof inputSchema>, agent: Agent): Promis
     throw new Error(`No post currently selected`);
   }
 
-  agent.infoMessage(
-    `[${name}] Generating image for post "${currentPost.title}"`,
-  );
+  agent.infoMessage(`[${name}] Generating image for post "${currentPost.title}"`);
   const imageResult = await imageService.generateImage(args, agent);
 
-  const uploadResult = await cdnService.upload(
-    activeBlog.cdnName,
-    imageResult.buffer,
-    {
-      filename: imageResult.fileName,
-      contentType: imageResult.mediaType,
-    },
-  );
+  const uploadResult = await cdnService.upload(activeBlog.cdnName, imageResult.buffer, {
+    filename: imageResult.fileName,
+    contentType: imageResult.mediaType,
+  });
 
   agent.infoMessage(`[${name}] Image uploaded: ${uploadResult.url}`);
 
   // Update the current post with the featured image
   await blogService.updateCurrentPost(
     {
-      feature_image: {
+      feature_image: stripUndefinedKeys({
         id: uploadResult.id,
         url: uploadResult.url,
-      },
+      }),
     },
     agent,
   );

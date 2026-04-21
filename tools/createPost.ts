@@ -1,16 +1,13 @@
 import type Agent from "@tokenring-ai/agent/Agent";
-import type {TokenRingToolDefinition, TokenRingToolResult} from "@tokenring-ai/chat/schema";
-import {marked} from "marked";
-import {z} from "zod";
+import type { TokenRingToolDefinition, TokenRingToolResult } from "@tokenring-ai/chat/schema";
+import { marked } from "marked";
+import { z } from "zod";
 import BlogService from "../BlogService.ts";
 
 const name = "blog_createPost";
 const displayName = "Blog/createPost";
 
-async function execute(
-  {title, contentInMarkdown, tags}: z.output<typeof inputSchema>,
-  agent: Agent,
-): Promise<TokenRingToolResult> {
+async function execute({ title, contentInMarkdown, tags }: z.output<typeof inputSchema>, agent: Agent): Promise<TokenRingToolResult> {
   const blogService = agent.requireServiceByType(BlogService);
 
   // Strip the header from the post;
@@ -19,8 +16,8 @@ async function execute(
   const post = await blogService.createPost(
     {
       title,
-      html: marked(contentInMarkdown, {async: false}),
-      tags,
+      html: marked(contentInMarkdown, { async: false }),
+      ...(tags && { tags }),
     },
     agent,
   );
@@ -33,12 +30,8 @@ const description = "Create a new blog post";
 
 const inputSchema = z.object({
   title: z.string().describe("Title of the blog post"),
-  contentInMarkdown: z
-    .string()
-    .describe(
-      "The content of the post in Markdown format. The title of the post goes in the title tag, NOT inside the content",
-    ),
-  tags: z.array(z.string()).describe("Tags for the post").optional(),
+  contentInMarkdown: z.string().describe("The content of the post in Markdown format. The title of the post goes in the title tag, NOT inside the content"),
+  tags: z.array(z.string()).describe("Tags for the post").exactOptional(),
 });
 
 export default {

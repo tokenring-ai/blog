@@ -1,7 +1,7 @@
-import type {RPCSchema} from "@tokenring-ai/rpc/types";
-import {z} from "zod";
-import {AgentNotFoundSchema} from "@tokenring-ai/agent/schema";
-import {BlogPostListItemSchema, BlogPostSchema} from "../BlogProvider.ts";
+import { AgentNotFoundSchema } from "@tokenring-ai/agent/schema";
+import type { RPCSchema } from "@tokenring-ai/rpc/types";
+import { z } from "zod";
+import { BlogPostListItemSchema, BlogPostSchema } from "../BlogProvider.ts";
 
 export default {
   name: "Blog RPC",
@@ -11,9 +11,9 @@ export default {
       type: "query",
       input: z.object({
         provider: z.string(),
-        status: z.enum(["draft", "published", "all"]).default("all").optional(),
-        tag: z.string().optional(),
-        limit: z.number().int().positive().default(10).optional(),
+        status: z.enum(["draft", "published", "all"]).default("all").exactOptional(),
+        tag: z.string().exactOptional(),
+        limit: z.number().int().positive().default(10).exactOptional(),
       }),
       result: z.object({
         posts: z.array(BlogPostListItemSchema),
@@ -28,7 +28,7 @@ export default {
         provider: z.string(),
         title: z.string(),
         contentInMarkdown: z.string(),
-        tags: z.array(z.string()).optional(),
+        tags: z.array(z.string()).exactOptional(),
       }),
       result: z.object({
         post: BlogPostSchema,
@@ -65,29 +65,29 @@ export default {
       }),
       result: z.discriminatedUnion("status", [
         z.object({
-          status: z.literal('success'),
+          status: z.literal("success"),
           selectedPostId: z.string().nullable(),
           selectedProvider: z.string().nullable(),
           availableProviders: z.array(z.string()),
         }),
-        AgentNotFoundSchema
+        AgentNotFoundSchema,
       ]),
     },
     updateBlogState: {
       type: "mutation",
       input: z.object({
         agentId: z.string(),
-        selectedPostId: z.string().optional(),
-        selectedProvider: z.string().optional(),
+        selectedPostId: z.string().exactOptional(),
+        selectedProvider: z.string().exactOptional(),
       }),
       result: z.discriminatedUnion("status", [
         z.object({
-          status: z.literal('success'),
+          status: z.literal("success"),
           selectedPostId: z.string().nullable(),
           selectedProvider: z.string().nullable(),
           availableProviders: z.array(z.string()),
         }),
-        AgentNotFoundSchema
+        AgentNotFoundSchema,
       ]),
     },
   },

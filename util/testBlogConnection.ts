@@ -1,14 +1,12 @@
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import type Agent from "@tokenring-ai/agent/Agent";
 import CDNService from "@tokenring-ai/cdn/CDNService";
-import {readFileSync} from "node:fs";
-import {resolve} from "node:path";
-import {v4 as uuid} from "uuid";
+import { stripUndefinedKeys } from "@tokenring-ai/utility/object/stripObject";
+import { v4 as uuid } from "uuid";
 import type BlogService from "../BlogService.ts";
 
-export async function testBlogConnection(
-  blogService: BlogService,
-  agent: Agent,
-): Promise<void> {
+export async function testBlogConnection(blogService: BlogService, agent: Agent): Promise<void> {
   try {
     const activeBlog = blogService.requireActiveBlogProvider(agent);
     const cdnService = agent.requireServiceByType(CDNService);
@@ -38,26 +36,20 @@ export async function testBlogConnection(
     const imageBuffer = readFileSync(imagePath);
     const filename = `test-${uuid()}.png`;
 
-    const uploadResult = await cdnService.upload(
-      activeBlog.cdnName,
-      imageBuffer,
-      {
-        filename,
-        contentType: "image/png",
-      },
-    );
-    agent.infoMessage(
-      `Image uploaded: ${uploadResult.url}, id: ${uploadResult.id}`,
-    );
+    const uploadResult = await cdnService.upload(activeBlog.cdnName, imageBuffer, {
+      filename,
+      contentType: "image/png",
+    });
+    agent.infoMessage(`Image uploaded: ${uploadResult.url}, id: ${uploadResult.id}`);
 
     // 4. Update post with image
     agent.infoMessage("🔄 Updating post with image...");
     await blogService.updateCurrentPost(
       {
-        feature_image: {
+        feature_image: stripUndefinedKeys({
           id: uploadResult.id,
           url: uploadResult.url,
-        },
+        }),
       },
       agent,
     );
