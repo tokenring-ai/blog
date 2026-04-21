@@ -78,13 +78,16 @@ export default createRPCEndpoint(BlogRpcSchema, {
 
   getBlogState(args, app: TokenRingApp) {
     const agent = app.requireService(AgentManager).getAgent(args.agentId);
-    if (!agent) throw new Error("Agent not found");
+    if (!agent) {
+      return {status: 'agentNotFound'};
+    }
     const blogService = app.requireService(BlogService);
 
     const currentPost = blogService.getCurrentPost(agent);
     const state = agent.getState(BlogState);
 
     return {
+      status: 'success',
       selectedPostId: currentPost?.id ?? null,
       selectedProvider: state.activeProvider ?? null,
       availableProviders: blogService.getAvailableBlogs(),
@@ -93,7 +96,9 @@ export default createRPCEndpoint(BlogRpcSchema, {
 
   async updateBlogState(args, app: TokenRingApp) {
     const agent = app.requireService(AgentManager).getAgent(args.agentId);
-    if (!agent) throw new Error("Agent not found");
+    if (!agent) {
+      return {status: 'agentNotFound'};
+    }
     const blogService = app.requireService(BlogService);
 
     if (args.selectedProvider) {
@@ -108,6 +113,7 @@ export default createRPCEndpoint(BlogRpcSchema, {
     const currentPost = blogService.getCurrentPost(agent);
 
     return {
+      status: 'success',
       selectedPostId: currentPost?.id ?? null,
       selectedProvider: state.activeProvider ?? null,
       availableProviders: blogService.getAvailableBlogs(),

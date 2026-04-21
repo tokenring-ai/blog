@@ -1,5 +1,6 @@
 import type {RPCSchema} from "@tokenring-ai/rpc/types";
 import {z} from "zod";
+import {AgentNotFoundSchema} from "@tokenring-ai/agent/schema";
 import {BlogPostListItemSchema, BlogPostSchema} from "../BlogProvider.ts";
 
 export default {
@@ -62,11 +63,15 @@ export default {
       input: z.object({
         agentId: z.string(),
       }),
-      result: z.object({
-        selectedPostId: z.string().nullable(),
-        selectedProvider: z.string().nullable(),
-        availableProviders: z.array(z.string()),
-      }),
+      result: z.discriminatedUnion("status", [
+        z.object({
+          status: z.literal('success'),
+          selectedPostId: z.string().nullable(),
+          selectedProvider: z.string().nullable(),
+          availableProviders: z.array(z.string()),
+        }),
+        AgentNotFoundSchema
+      ]),
     },
     updateBlogState: {
       type: "mutation",
@@ -75,11 +80,15 @@ export default {
         selectedPostId: z.string().optional(),
         selectedProvider: z.string().optional(),
       }),
-      result: z.object({
-        selectedPostId: z.string().nullable(),
-        selectedProvider: z.string().nullable(),
-        availableProviders: z.array(z.string()),
-      }),
+      result: z.discriminatedUnion("status", [
+        z.object({
+          status: z.literal('success'),
+          selectedPostId: z.string().nullable(),
+          selectedProvider: z.string().nullable(),
+          availableProviders: z.array(z.string()),
+        }),
+        AgentNotFoundSchema
+      ]),
     },
   },
 } satisfies RPCSchema;
