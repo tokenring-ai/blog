@@ -44,10 +44,8 @@ bun add @tokenring-ai/blog
 - `@tokenring-ai/rpc` (0.2.0) - JSON-RPC implementation
 - `@tokenring-ai/cdn` (0.2.0) - CDN service for image uploads
 - `@tokenring-ai/scripting` (0.2.0) - Scripting API
-- `@tokenring-ai/escalation` (0.2.0) - Escalation service
-- `@tokenring-ai/image-generation` (0.2.0) - Image generation service
 - `zod` (^4.3.6) - Schema validation
-- `marked` (^17.0.5) - Markdown to HTML conversion
+- `marked` (^17.0.6) - Markdown to HTML conversion
 - `uuid` (^13.0.0) - Unique ID generation
 
 ---
@@ -91,9 +89,9 @@ The package registers the following tools with the ChatService:
 | `blog_createPost` | Create a new blog post |
 | `blog_updatePost` | Update the selected blog post |
 | `blog_getRecentPosts` | Retrieve recent posts |
-| `blog_getCurrentPost` | Get the selected post |
+| `blog_getCurrentPost` | Get the currently selected post |
 | `blog_selectPost` | Select a post by ID |
-| `blog_generateImageForPost` | Generate AI image for post |
+| `blog_generateImageForPost` | Generate AI image for the currently selected post |
 
 #### `blog_createPost`
 
@@ -164,16 +162,15 @@ Selects a blog post by its ID.
 
 #### `blog_generateImageForPost`
 
-Generate an AI image for the currently selected blog post.
+Generate an AI image for the currently selected blog post and set it as the
+featured image.
 
 **Parameters:**
 
 | Parameter | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
-| `prompt` | string | Yes | Description of the image |
+| `prompt` | string | Yes | Description of the image to generate |
 | `aspectRatio` | string | No | Aspect ratio (default: "square") |
-
-**Returns:** JSON object with success status and image URL
 
 **Aspect Ratio Options:**
 
@@ -181,9 +178,11 @@ Generate an AI image for the currently selected blog post.
 - `tall`: 1024x1536
 - `wide`: 1536x1024
 
-**Note:** This tool gets the active blog provider's image generation model,
-generates an image using the AI client, uploads the image to the provider's
-configured CDN, and updates the current post with the featured image.
+**Returns:** JSON object with success status and image URL
+
+**Note:** This tool uses the `ImageGenerationService` to generate the image,
+uploads it to the active provider's configured `CDNService`, and updates the
+current post with the featured image. Requires both services to be available.
 
 ### Configuration
 
@@ -193,7 +192,6 @@ The plugin is configured using the `BlogConfigSchema`:
 blog:
   agentDefaults:
     provider: wordpress
-    imageModel: dall-e-3
     reviewPatterns:
       - "(?:confidential|proprietary)"
     reviewEscalationTarget: manager@example.com
@@ -208,17 +206,19 @@ blog:
 
 | Option | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
-| `agentDefaults` | object | No | Default config for blog agents |
-| `defaultImageModels` | string[] | No | Default image model names |
+| `agentDefaults` | object | No | Default configuration for blog agents |
+| `defaultImageModels` | string[] | No | Default image model names (used by image generation) |
 
-**BlogAgentConfigSchema:**
+**BlogAgentConfigSchema:** (nested under `agentDefaults`)
 
 | Option | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
-| `provider` | string | No | Default blog provider name |
-| `imageModel` | string | No | Default image generation model |
-| `reviewPatterns` | string[] | No | Regex patterns for review |
-| `reviewEscalationTarget` | string | No | Escalation target email |
+| `provider` | string | No | Default blog provider name to activate on agent initialization |
+| `reviewPatterns` | string[] | No | Regex patterns to detect sensitive content requiring review |
+| `reviewEscalationTarget` | string | No | Email address for review escalation notifications |
+
+**Note:** The `imageModel` option is not currently used in the configuration.
+Image model selection is handled by the `ImageGenerationService`.
 
 ### Scripting API
 
@@ -233,17 +233,18 @@ Create a new blog post.
 | Parameter | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
 | `title` | string | Yes | Post title |
-| `html` | string | Yes | Post content in HTML |
+| `html` | string | Yes | Post content in HTML format |
 
-**Returns:** Post ID as string
+**Returns:** String message with created post ID
 
 **Example:**
 
 ```typescript
-const postId = await scripting.createPost(
+const result = await scripting.createPost(
   "My Post",
   "<h1>My Post</h1><p>Content here</p>"
 );
+// Returns: "Created post: <post-id>"
 ```
 
 #### `updatePost(title, html)`
@@ -254,35 +255,37 @@ Update the currently selected blog post.
 
 | Parameter | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
-| `title` | string | Yes | New title |
-| `html` | string | Yes | New content in HTML |
+| `title` | string | Yes | New title for the post |
+| `html` | string | Yes | New content in HTML format |
 
-**Returns:** Post ID as string
+**Returns:** String message with updated post ID
 
 **Example:**
 
 ```typescript
-const postId = await scripting.updatePost(
+const result = await scripting.updatePost(
   "Updated Title",
   "<h1>Updated</h1><p>New content</p>"
 );
+// Returns: "Updated post: <post-id>"
 ```
 
 #### `getCurrentPost()`
 
 Get the currently selected post.
 
-**Returns:** Post object as JSON string or "No post selected"
+**Returns:** Post object as JSON string, or "No post selected" if none selected
 
 **Example:**
 
 ```typescript
 const post = await scripting.getCurrentPost();
+// Returns: JSON string of post object or "No post selected"
 ```
 
 #### `getAllPosts()`
 
-Get all posts (summary list).
+Get all posts from the active provider.
 
 **Returns:** Array of posts as JSON string
 
@@ -290,6 +293,7 @@ Get all posts (summary list).
 
 ```typescript
 const posts = await scripting.getAllPosts();
+// Returns: JSON string of posts array
 ```
 
 ### Integration
@@ -303,7 +307,6 @@ app.installPlugin(blogPlugin, {
   blog: {
     agentDefaults: {
       provider: 'wordpress',
-      imageModel: 'dall-e-3',
       reviewPatterns: ['(?:confidential|proprietary)'],
       reviewEscalationTarget: 'review@example.com'
     },
@@ -371,30 +374,41 @@ be registered via `BlogService.registerBlog()` after the service is available.
 ### Best Practices
 
 1. **Provider Registration**: Register blog providers programmatically via
-   `BlogService.registerBlog()` - they are NOT configured through plugin config
+   `BlogService.registerBlog()` after the service is available. Providers are
+   NOT configured through the plugin configuration.
 
-2. **Review Patterns**: Use review patterns for sensitive content to ensure
-   human approval before publishing
+2. **Review Patterns**: Configure `reviewPatterns` in `agentDefaults` to detect
+   sensitive content (e.g., confidential information) that requires human
+   approval before publishing.
 
-3. **Image Generation**: Use descriptive prompts for image generation to get
-   relevant results
+3. **Review Escalation**: Configure `reviewEscalationTarget` to enable automatic
+   email escalation when review patterns are matched. The escalation target will
+   receive a notification and can approve or reject the post.
 
-4. **Post Selection**: Always select a post before performing operations that
-   require a current post
+4. **Image Generation**: Use descriptive prompts for image generation to get
+   relevant results. The generated image is automatically uploaded to the
+   provider's configured CDN and set as the featured image.
 
-5. **Error Handling**: Check for null/undefined returns when getting current
-   post or provider
+5. **Post Selection**: Always select a post before performing operations that
+   require a current post (e.g., update, publish, generate image).
 
-6. **Content Format**:
-   - Tools: Provide content in Markdown (automatically converted to HTML)
-   - RPC: Provide content in Markdown (automatically converted to HTML)
-   - Direct Service Calls: Provide content in HTML
+6. **Error Handling**: Check for null returns when getting current post or
+   undefined when getting current provider. Tools will throw errors if required
+   state is missing.
 
-7. **RPC vs Service**: RPC endpoints require explicit `provider` parameter;
-   tools/commands use the agent's active provider state
+7. **Content Format**:
+   - **Tools**: Provide content in Markdown (automatically converted to HTML)
+   - **RPC**: Provide content in Markdown (automatically converted to HTML)
+   - **Direct Service Calls**: Provide content in HTML
+   - **Scripting API**: Provide content in HTML
 
-8. **Review Escalation**: Only available through `/blog post publish` command
-   or direct `BlogService.publishPost()` method - NOT available via RPC
+8. **RPC vs Service**: RPC endpoints require an explicit `provider` parameter
+   to specify which blog provider to use. Tools and commands use the agent's
+   active provider state.
+
+9. **State Management**: Blog state (active provider, current post, review
+   patterns) is managed per-agent through `BlogState`. Child agents inherit
+   state from parent agents where applicable.
 
 ---
 
@@ -414,48 +428,59 @@ The main service that manages all blog operations and provider registration.
 | :--- | :--- | :--- |
 | `name` | string | "BlogService" |
 | `description` | string | "Abstract interface for blog operations" |
-| `providers` | KeyedRegistry | Registry of registered blog providers |
+| `options` | `BlogConfigSchema` | Configuration options |
 
-**Key Methods:**
+**Provider Registry Methods:**
 
 | Method | Description |
 | :--- | :--- |
-| `attach(agent, creationContext)` | Initialize the blog service |
-| `requireActiveBlogProvider(agent)` | Require an active blog provider |
-| `setActiveProvider(name, agent)` | Set the active blog provider |
+| `registerBlog(name, provider)` | Register a blog provider by name |
+| `getAvailableBlogs()` | Get array of registered provider names |
+| `getBlogProvider(name)` | Get a provider by name (returns undefined if not found) |
+| `requireBlogProvider(name)` | Get a provider by name (throws if not found) |
+
+**Service Methods:**
+
+| Method | Description |
+| :--- | :--- |
+| `attach(agent, creationContext)` | Initialize the blog service with agent state |
+| `requireActiveBlogProvider(agent)` | Require an active blog provider (throws if none selected) |
+| `setActiveProvider(name, agent)` | Set the active blog provider for the agent |
 | `getAllPosts(agent)` | Retrieve all posts from the active provider |
-| `getRecentPosts(filter, agent)` | Retrieve recent posts with filtering |
-| `createPost(data, agent)` | Create a new post |
-| `updateCurrentPost(updatedData, agent)` | Update the selected post |
-| `getCurrentPost(agent)` | Get the currently selected post |
-| `selectPostById(id, agent)` | Select a post by ID |
+| `getRecentPosts(filter, agent)` | Retrieve recent posts with optional filtering |
+| `createPost(data, agent)` | Create a new post with the active provider |
+| `updateCurrentPost(updatedData, agent)` | Update the currently selected post |
+| `getCurrentPost(agent)` | Get the currently selected post (returns null if none) |
+| `selectPostById(id, agent)` | Select a post by ID and set as current |
 | `clearCurrentPost(agent)` | Clear the current post selection |
-| `publishPost(agent)` | Publish the selected post |
+| `publishPost(agent)` | Publish the selected post with review escalation |
 
 #### BlogProvider Interface
 
-The interface for implementing blog platform integrations.
+The interface for implementing blog platform integrations. Concrete providers
+(e.g., WordPress, Ghost) must implement this interface.
 
 **Properties:**
 
 | Property | Type | Description |
 | :--- | :--- | :--- |
-| `description` | string | Provider description |
-| `cdnName` | string | CDN name for image uploads |
+| `description` | string | Human-readable provider description |
+| `cdnName` | string | Name of the CDN service to use for image uploads |
 
 **Methods:**
 
 | Method | Returns | Description |
 | :--- | :--- | :--- |
-| `getAllPosts()` | `Promise<BlogPostListItem[]>` | Get all posts |
-| `getRecentPosts(filter)` | `Promise<BlogPostListItem[]>` | Get recent posts |
-| `createPost(data)` | `Promise<BlogPost>` | Create a new post |
-| `updatePost(id, updatedData)` | `Promise<BlogPost>` | Update a post by ID |
-| `getPostById(id)` | `Promise<BlogPost>` | Get a post by its ID |
+| `getAllPosts()` | `Promise<BlogPostListItem[]>` | Get all posts from the platform |
+| `getRecentPosts(filter)` | `Promise<BlogPostListItem[]>` | Get recent posts with optional filtering |
+| `createPost(data)` | `Promise<BlogPost>` | Create a new post on the platform |
+| `updatePost(id, updatedData)` | `Promise<BlogPost>` | Update an existing post by ID |
+| `getPostById(id)` | `Promise<BlogPost>` | Get a specific post by its ID |
 
-**Note:** The `BlogProvider` interface does NOT include `attach`,
-`getCurrentPost`, `clearCurrentPost`, or `selectPostById` methods. These are
-handled by the `BlogService`.
+**Note:** The `BlogProvider` interface handles platform-specific operations only.
+State management (current post selection, active provider) is handled by the
+`BlogService`. Providers do NOT implement `attach`, `getCurrentPost`,
+`clearCurrentPost`, or `selectPostById` methods.
 
 ### State Management
 
@@ -497,7 +522,7 @@ The package provides JSON-RPC endpoints at `/rpc/blog`.
 | :--- | :--- | :--- |
 | `getAllPosts` | `provider`, `status?`, `tag?`, `limit?` | `posts`, `count`, `currentlySelected`, `message` |
 | `getPostById` | `provider`, `id` | `post`, `message` |
-| `getBlogState` | `agentId` | `selectedPostId`, `selectedProvider`, `availableProviders` |
+| `getBlogState` | `agentId` | `status`, `selectedPostId`, `selectedProvider`, `availableProviders` |
 
 #### Mutation Endpoints
 
@@ -505,7 +530,7 @@ The package provides JSON-RPC endpoints at `/rpc/blog`.
 | :--- | :--- | :--- |
 | `createPost` | `provider`, `title`, `contentInMarkdown`, `tags?` | `post`, `message` |
 | `updatePost` | `provider`, `id`, `updatedData` | `post`, `message` |
-| `updateBlogState` | `agentId`, `selectedPostId?`, `selectedProvider?` | `selectedPostId`, `selectedProvider`, `availableProviders` |
+| `updateBlogState` | `agentId`, `selectedPostId?`, `selectedProvider?` | `status`, `selectedPostId`, `selectedProvider`, `availableProviders` |
 
 **Important Notes:**
 
@@ -521,19 +546,27 @@ The package provides JSON-RPC endpoints at `/rpc/blog`.
 
 ### Type Definitions
 
+All types are exported from `BlogProvider.ts` and are Zod-validated.
+
+#### BlogPostStatusSchema
+
+```typescript
+z.enum(["draft", "published", "scheduled", "pending", "private"])
+```
+
 #### BlogPostListItem
 
 | Property | Type | Description |
 | :--- | :--- | :--- |
 | `id` | string | Unique identifier |
 | `title` | string | Post title |
-| `status` | string | Post status |
-| `tags` | string[] or undefined | Post tags |
-| `created_at` | number | Creation date (Unix timestamp ms) |
-| `updated_at` | number | Last update date (Unix timestamp ms) |
-| `published_at` | number or undefined | Publication date |
-| `feature_image` | object or undefined | Featured image |
-| `url` | string or undefined | Post URL |
+| `status` | BlogPostStatusSchema | Post status |
+| `tags` | string[] \| undefined | Optional post tags |
+| `created_at` | number | Creation date (Unix timestamp in milliseconds) |
+| `updated_at` | number | Last update date (Unix timestamp in milliseconds) |
+| `published_at` | number \| undefined | Optional publication date |
+| `feature_image` | `{ id?: string, url?: string }` \| undefined | Optional featured image |
+| `url` | string \| undefined | Optional post URL |
 
 #### BlogPost
 
@@ -555,9 +588,9 @@ type CreatePostData = Omit<
 | Property | Type | Description |
 | :--- | :--- | :--- |
 | `title` | string | Post title |
-| `html` | string | Post content in HTML |
-| `tags` | string[] or undefined | Optional tags |
-| `feature_image` | object or undefined | Optional featured image |
+| `html` | string | Post content in HTML format |
+| `tags` | string[] \| undefined | Optional tags |
+| `feature_image` | `{ id?: string, url?: string }` \| undefined | Optional featured image |
 
 #### UpdatePostData
 
@@ -567,8 +600,7 @@ type UpdatePostData = Partial<
 >;
 ```
 
-All fields from `BlogPost` except `id`, `created_at`, `updated_at`
-(all optional).
+All fields from `BlogPost` except `id`, `created_at`, `updated_at` (all optional).
 
 #### BlogPostFilterOptions
 
@@ -580,6 +612,8 @@ type BlogPostFilterOptions = {
 };
 ```
 
+**Note:** The `status` filter uses the `BlogPostStatusSchema` enum values.
+
 ### Testing and Development
 
 #### Running Tests
@@ -588,7 +622,7 @@ type BlogPostFilterOptions = {
 bun test
 ```
 
-#### Build
+#### Build (Type Check)
 
 ```bash
 bun run build
@@ -599,45 +633,47 @@ bun run build
 Use the `/blog test` command to test blog connectivity. This will:
 
 1. List current posts
-2. Create a test post
-3. Upload a test image (hello.png)
-4. Update the post with the image
+2. Create a test post with timestamped title
+3. Upload a test image (`hello.png`)
+4. Update the post with the uploaded image as featured image
 
-**Note:** The test utility requires a `hello.png` file in the package directory.
+**Note:** The test utility requires a `hello.png` file in the package directory
+(`pkg/blog/hello.png`).
 
 #### Package Structure
 
 ```text
 pkg/blog/
-├── BlogProvider.ts       # Provider interface and types
+├── BlogProvider.ts       # Provider interface and type definitions
 ├── BlogService.ts        # Main service implementation
-├── commands.ts           # Command exports
-├── index.ts              # Package exports
-├── plugin.ts             # Plugin registration
-├── schema.ts             # Configuration schemas
-├── tools.ts              # Tool exports
+├── commands.ts           # Agent command exports
+├── index.ts              # Package main exports
+├── plugin.ts             # Plugin registration and setup
+├── schema.ts             # Configuration Zod schemas
+├── tools.ts              # Chat tool exports
 ├── vitest.config.ts      # Test configuration
-├── commands/             # Agent commands
+├── commands/             # Agent command implementations
 │   └── blog/
 │       ├── post/
-│       │   ├── clear.ts
-│       │   ├── get.ts
-│       │   ├── info.ts
-│       │   ├── publish.ts
-│       │   └── select.ts
+│       │   ├── clear.ts      # Clear current post selection
+│       │   ├── get.ts        # Get current post title
+│       │   ├── info.ts       # Get detailed post info
+│       │   ├── publish.ts    # Publish current post
+│       │   └── select.ts     # Interactively select a post
 │       ├── provider/
-│       │   ├── get.ts
-│       │   ├── reset.ts
-│       │   ├── select.ts
-│       │   └── set.ts
-│       └── test.ts
+│       │   ├── get.ts        # Get current provider
+│       │   ├── list.ts       # List all providers
+│       │   ├── reset.ts      # Reset to initial provider
+│       │   ├── select.ts     # Interactively select provider
+│       │   └── set.ts        # Set provider by name
+│       └── test.ts           # Test blog connection
 ├── rpc/
 │   ├── blog.ts           # RPC endpoint implementation
 │   ├── schema.ts         # RPC schema definitions
-│   └── test/             # RPC tests
+│   └── test/             # RPC endpoint tests
 ├── state/
-│   └── BlogState.ts      # State management
-├── tools/                # Chat tools
+│   └── BlogState.ts      # Agent state management
+├── tools/                # Chat tool implementations
 │   ├── createPost.ts
 │   ├── generateImageForPost.ts
 │   ├── getCurrentPost.ts
