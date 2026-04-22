@@ -54,7 +54,7 @@ class TestBlogProvider implements BlogProvider {
     return this.posts;
   }
 
-  async createPost(data: any, agent: Agent): Promise<any> {
+  async createPost(data: any, agent: Agent): Promise<JSONValue> {
     const newPost = {
       id: `post-${Date.now()}`,
       title: data.title,
@@ -69,7 +69,7 @@ class TestBlogProvider implements BlogProvider {
     return newPost;
   }
 
-  async updatePost(data: any, agent: Agent): Promise<any> {
+  async updatePost(data: any, agent: Agent): Promise<JSONValue> {
     const currentPost = this.getCurrentPost(agent);
     if (!currentPost) {
       throw new Error('No post currently selected');
@@ -91,7 +91,7 @@ class TestBlogProvider implements BlogProvider {
     return this.posts.find(p => p.id === this.currentPostId) || null;
   }
 
-  async selectPostById(id: string, agent: Agent): Promise<any> {
+  async selectPostById(id: string, agent: Agent): Promise<JSONValue> {
     const post = this.posts.find(p => p.id === id);
     if (!post) {
       throw new Error('Post not found');
