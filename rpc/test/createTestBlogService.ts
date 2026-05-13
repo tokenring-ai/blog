@@ -1,51 +1,51 @@
-import {Agent} from "@tokenring-ai/agent";
+import { Agent } from "@tokenring-ai/agent";
 import TokenRingApp from "@tokenring-ai/app";
-import {BlogProvider} from "../../BlogProvider";
+import { BlogProvider } from "../../BlogProvider";
 import BlogService from "../../BlogService.ts";
-import {BlogConfigSchema} from "../../schema.ts";
+import { BlogConfigSchema } from "../../schema.ts";
 
 // Test configuration for BlogService
 const testConfig = {
   providers: {
     test: {
-      type: 'test',
-      name: 'Test Blog',
-      description: 'Test blog provider',
+      type: "test",
+      name: "Test Blog",
+      description: "Test blog provider",
     }
   }
 };
 
 // Mock Test Blog Provider
 class TestBlogProvider implements BlogProvider {
-  description = 'Test Blog';
+  description = "Test Blog";
   posts: any[] = [];
   currentPostId: string | null = null;
-  imageGenerationModel = 'test-model';
-  cdnName = 'test-cdn';
+  imageGenerationModel = "test-model";
+  cdnName = "test-cdn";
 
   attach(agent: Agent): void {
     // Initialize test posts
     this.posts = [
       {
-        id: 'post-1',
-        title: 'Test Post 1',
-        html: 'Test content 1',
-        status: 'draft',
-        tags: ['test'],
-        created_at: new Date('2024-01-01'),
-        updated_at: new Date('2024-01-01'),
-        url: 'https://example.com/post-1',
+        id: "post-1",
+        title: "Test Post 1",
+        html: "Test content 1",
+        status: "draft",
+        tags: ["test"],
+        created_at: new Date("2024-01-01"),
+        updated_at: new Date("2024-01-01"),
+        url: "https://example.com/post-1",
       },
       {
-        id: 'post-2',
-        title: 'Test Post 2',
-        html: 'Test content 2',
-        status: 'published',
-        tags: ['test', 'published'],
-        created_at: new Date('2024-01-02'),
-        updated_at: new Date('2024-01-02'),
-        published_at: new Date('2024-01-02'),
-        url: 'https://example.com/post-2',
+        id: "post-2",
+        title: "Test Post 2",
+        html: "Test content 2",
+        status: "published",
+        tags: ["test", "published"],
+        created_at: new Date("2024-01-02"),
+        updated_at: new Date("2024-01-02"),
+        published_at: new Date("2024-01-02"),
+        url: "https://example.com/post-2",
       },
     ];
   }
@@ -59,7 +59,7 @@ class TestBlogProvider implements BlogProvider {
       id: `post-${Date.now()}`,
       title: data.title,
       html: data.html,
-      status: 'draft',
+      status: "draft",
       tags: data.tags || [],
       created_at: new Date(),
       updated_at: new Date(),
@@ -72,11 +72,11 @@ class TestBlogProvider implements BlogProvider {
   async updatePost(data: any, agent: Agent): Promise<JSONValue> {
     const currentPost = this.getCurrentPost(agent);
     if (!currentPost) {
-      throw new Error('No post currently selected');
+      throw new Error("No post currently selected");
     }
     const index = this.posts.findIndex(p => p.id === currentPost.id);
     if (index === -1) {
-      throw new Error('Post not found');
+      throw new Error("Post not found");
     }
     this.posts[index] = {
       ...this.posts[index],
@@ -94,7 +94,7 @@ class TestBlogProvider implements BlogProvider {
   async selectPostById(id: string, agent: Agent): Promise<JSONValue> {
     const post = this.posts.find(p => p.id === id);
     if (!post) {
-      throw new Error('Post not found');
+      throw new Error("Post not found");
     }
     this.currentPostId = id;
     return post;

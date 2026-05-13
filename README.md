@@ -56,41 +56,41 @@ bun add @tokenring-ai/blog
 
 #### Provider Management
 
-| Command | Description |
-| :--- | :--- |
-| `/blog provider get` | Show current provider |
-| `/blog provider list` | List all registered providers |
-| `/blog provider set <name>` | Set the active provider by name |
-| `/blog provider select` | Interactively select the provider |
-| `/blog provider reset` | Reset to the initial configured provider |
+| Command                     | Description                              |
+|:----------------------------|:-----------------------------------------|
+| `/blog provider get`        | Show current provider                    |
+| `/blog provider list`       | List all registered providers            |
+| `/blog provider set <name>` | Set the active provider by name          |
+| `/blog provider select`     | Interactively select the provider        |
+| `/blog provider reset`      | Reset to the initial configured provider |
 
 #### Post Management
 
-| Command | Description |
-| :--- | :--- |
-| `/blog post get` | Show current post title |
-| `/blog post select` | Interactively select a post |
-| `/blog post info` | Display detailed post information |
-| `/blog post clear` | Clear the current post selection |
-| `/blog post publish` | Publish the selected post |
+| Command              | Description                       |
+|:---------------------|:----------------------------------|
+| `/blog post get`     | Show current post title           |
+| `/blog post select`  | Interactively select a post       |
+| `/blog post info`    | Display detailed post information |
+| `/blog post clear`   | Clear the current post selection  |
+| `/blog post publish` | Publish the selected post         |
 
 #### Testing
 
-| Command | Description |
-| :--- | :--- |
+| Command      | Description          |
+|:-------------|:---------------------|
 | `/blog test` | Test blog connection |
 
 ### Tools
 
 The package registers the following tools with the ChatService:
 
-| Tool | Description |
-| :--- | :--- |
-| `blog_createPost` | Create a new blog post |
-| `blog_updatePost` | Update the selected blog post |
-| `blog_getRecentPosts` | Retrieve recent posts |
-| `blog_getCurrentPost` | Get the currently selected post |
-| `blog_selectPost` | Select a post by ID |
+| Tool                        | Description                                       |
+|:----------------------------|:--------------------------------------------------|
+| `blog_createPost`           | Create a new blog post                            |
+| `blog_updatePost`           | Update the selected blog post                     |
+| `blog_getRecentPosts`       | Retrieve recent posts                             |
+| `blog_getCurrentPost`       | Get the currently selected post                   |
+| `blog_selectPost`           | Select a post by ID                               |
 | `blog_generateImageForPost` | Generate AI image for the currently selected post |
 
 #### `blog_createPost`
@@ -99,11 +99,11 @@ Create a new blog post.
 
 **Parameters:**
 
-| Parameter | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| `title` | string | Yes | Title of the blog post |
-| `contentInMarkdown` | string | Yes | Content in Markdown format |
-| `tags` | string[] | No | Tags for the post |
+| Parameter           | Type     | Required | Description                |
+|:--------------------|:---------|:---------|:---------------------------|
+| `title`             | string   | Yes      | Title of the blog post     |
+| `contentInMarkdown` | string   | Yes      | Content in Markdown format |
+| `tags`              | string[] | No       | Tags for the post          |
 
 **Returns:** `{ type: 'json', data: BlogPost }`
 
@@ -116,11 +116,11 @@ Update the currently selected blog post.
 
 **Parameters:**
 
-| Parameter | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| `title` | string | No | New title for the post |
-| `contentInMarkdown` | string | No | Content in Markdown format |
-| `tags` | string[] | No | New tags for the post |
+| Parameter           | Type     | Required | Description                |
+|:--------------------|:---------|:---------|:---------------------------|
+| `title`             | string   | No       | New title for the post     |
+| `contentInMarkdown` | string   | No       | Content in Markdown format |
+| `tags`              | string[] | No       | New tags for the post      |
 
 **Returns:** `{ type: 'json', data: BlogPost }`
 
@@ -130,11 +130,11 @@ Retrieves recent posts, optionally filtered by status and keyword.
 
 **Parameters:**
 
-| Parameter | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| `status` | string | No | Filter by status |
-| `keyword` | string | No | Keyword to filter by |
-| `limit` | number | No | Maximum posts (default: 50) |
+| Parameter | Type   | Required | Description                 |
+|:----------|:-------|:---------|:----------------------------|
+| `status`  | string | No       | Filter by status            |
+| `keyword` | string | No       | Keyword to filter by        |
+| `limit`   | number | No       | Maximum posts (default: 50) |
 
 **Returns:** Formatted table of recent posts as a string
 
@@ -154,9 +154,9 @@ Selects a blog post by its ID.
 
 **Parameters:**
 
-| Parameter | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| `id` | string | Yes | The unique identifier of the post |
+| Parameter | Type   | Required | Description                       |
+|:----------|:-------|:---------|:----------------------------------|
+| `id`      | string | Yes      | The unique identifier of the post |
 
 **Returns:** Formatted string with post details and JSON representation
 
@@ -167,10 +167,10 @@ featured image.
 
 **Parameters:**
 
-| Parameter | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| `prompt` | string | Yes | Description of the image to generate |
-| `aspectRatio` | string | No | Aspect ratio (default: "square") |
+| Parameter     | Type   | Required | Description                          |
+|:--------------|:-------|:---------|:-------------------------------------|
+| `prompt`      | string | Yes      | Description of the image to generate |
+| `aspectRatio` | string | No       | Aspect ratio (default: "square")     |
 
 **Aspect Ratio Options:**
 
@@ -204,18 +204,18 @@ blog:
 
 **BlogConfigSchema:**
 
-| Option | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| `agentDefaults` | object | No | Default configuration for blog agents |
-| `defaultImageModels` | string[] | No | Default image model names (used by image generation) |
+| Option               | Type     | Required | Description                                          |
+|:---------------------|:---------|:---------|:-----------------------------------------------------|
+| `agentDefaults`      | object   | No       | Default configuration for blog agents                |
+| `defaultImageModels` | string[] | No       | Default image model names (used by image generation) |
 
 **BlogAgentConfigSchema:** (nested under `agentDefaults`)
 
-| Option | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| `provider` | string | No | Default blog provider name to activate on agent initialization |
-| `reviewPatterns` | string[] | No | Regex patterns to detect sensitive content requiring review |
-| `reviewEscalationTarget` | string | No | Email address for review escalation notifications |
+| Option                   | Type     | Required | Description                                                    |
+|:-------------------------|:---------|:---------|:---------------------------------------------------------------|
+| `provider`               | string   | No       | Default blog provider name to activate on agent initialization |
+| `reviewPatterns`         | string[] | No       | Regex patterns to detect sensitive content requiring review    |
+| `reviewEscalationTarget` | string   | No       | Email address for review escalation notifications              |
 
 **Note:** The `imageModel` option is not currently used in the configuration.
 Image model selection is handled by the `ImageGenerationService`.
@@ -230,10 +230,10 @@ Create a new blog post.
 
 **Parameters:**
 
-| Parameter | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| `title` | string | Yes | Post title |
-| `html` | string | Yes | Post content in HTML format |
+| Parameter | Type   | Required | Description                 |
+|:----------|:-------|:---------|:----------------------------|
+| `title`   | string | Yes      | Post title                  |
+| `html`    | string | Yes      | Post content in HTML format |
 
 **Returns:** String message with created post ID
 
@@ -253,10 +253,10 @@ Update the currently selected blog post.
 
 **Parameters:**
 
-| Parameter | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| `title` | string | Yes | New title for the post |
-| `html` | string | Yes | New content in HTML format |
+| Parameter | Type   | Required | Description                |
+|:----------|:-------|:---------|:---------------------------|
+| `title`   | string | Yes      | New title for the post     |
+| `html`    | string | Yes      | New content in HTML format |
 
 **Returns:** String message with updated post ID
 
@@ -397,10 +397,11 @@ be registered via `BlogService.registerBlog()` after the service is available.
    state is missing.
 
 7. **Content Format**:
-   - **Tools**: Provide content in Markdown (automatically converted to HTML)
-   - **RPC**: Provide content in Markdown (automatically converted to HTML)
-   - **Direct Service Calls**: Provide content in HTML
-   - **Scripting API**: Provide content in HTML
+
+- **Tools**: Provide content in Markdown (automatically converted to HTML)
+- **RPC**: Provide content in Markdown (automatically converted to HTML)
+- **Direct Service Calls**: Provide content in HTML
+- **Scripting API**: Provide content in HTML
 
 8. **RPC vs Service**: RPC endpoints require an explicit `provider` parameter
    to specify which blog provider to use. Tools and commands use the agent's
@@ -424,36 +425,36 @@ The main service that manages all blog operations and provider registration.
 
 **Key Properties:**
 
-| Property | Type | Description |
-| :--- | :--- | :--- |
-| `name` | string | "BlogService" |
-| `description` | string | "Abstract interface for blog operations" |
-| `options` | `BlogConfigSchema` | Configuration options |
+| Property      | Type               | Description                              |
+|:--------------|:-------------------|:-----------------------------------------|
+| `name`        | string             | "BlogService"                            |
+| `description` | string             | "Abstract interface for blog operations" |
+| `options`     | `BlogConfigSchema` | Configuration options                    |
 
 **Provider Registry Methods:**
 
-| Method | Description |
-| :--- | :--- |
-| `registerBlog(name, provider)` | Register a blog provider by name |
-| `getAvailableBlogs()` | Get array of registered provider names |
-| `getBlogProvider(name)` | Get a provider by name (returns undefined if not found) |
-| `requireBlogProvider(name)` | Get a provider by name (throws if not found) |
+| Method                         | Description                                             |
+|:-------------------------------|:--------------------------------------------------------|
+| `registerBlog(name, provider)` | Register a blog provider by name                        |
+| `getAvailableBlogs()`          | Get array of registered provider names                  |
+| `getBlogProvider(name)`        | Get a provider by name (returns undefined if not found) |
+| `requireBlogProvider(name)`    | Get a provider by name (throws if not found)            |
 
 **Service Methods:**
 
-| Method | Description |
-| :--- | :--- |
-| `attach(agent, creationContext)` | Initialize the blog service with agent state |
-| `requireActiveBlogProvider(agent)` | Require an active blog provider (throws if none selected) |
-| `setActiveProvider(name, agent)` | Set the active blog provider for the agent |
-| `getAllPosts(agent)` | Retrieve all posts from the active provider |
-| `getRecentPosts(filter, agent)` | Retrieve recent posts with optional filtering |
-| `createPost(data, agent)` | Create a new post with the active provider |
-| `updateCurrentPost(updatedData, agent)` | Update the currently selected post |
-| `getCurrentPost(agent)` | Get the currently selected post (returns null if none) |
-| `selectPostById(id, agent)` | Select a post by ID and set as current |
-| `clearCurrentPost(agent)` | Clear the current post selection |
-| `publishPost(agent)` | Publish the selected post with review escalation |
+| Method                                  | Description                                               |
+|:----------------------------------------|:----------------------------------------------------------|
+| `attach(agent, creationContext)`        | Initialize the blog service with agent state              |
+| `requireActiveBlogProvider(agent)`      | Require an active blog provider (throws if none selected) |
+| `setActiveProvider(name, agent)`        | Set the active blog provider for the agent                |
+| `getAllPosts(agent)`                    | Retrieve all posts from the active provider               |
+| `getRecentPosts(filter, agent)`         | Retrieve recent posts with optional filtering             |
+| `createPost(data, agent)`               | Create a new post with the active provider                |
+| `updateCurrentPost(updatedData, agent)` | Update the currently selected post                        |
+| `getCurrentPost(agent)`                 | Get the currently selected post (returns null if none)    |
+| `selectPostById(id, agent)`             | Select a post by ID and set as current                    |
+| `clearCurrentPost(agent)`               | Clear the current post selection                          |
+| `publishPost(agent)`                    | Publish the selected post with review escalation          |
 
 #### BlogProvider Interface
 
@@ -462,20 +463,20 @@ The interface for implementing blog platform integrations. Concrete providers
 
 **Properties:**
 
-| Property | Type | Description |
-| :--- | :--- | :--- |
-| `description` | string | Human-readable provider description |
-| `cdnName` | string | Name of the CDN service to use for image uploads |
+| Property      | Type   | Description                                      |
+|:--------------|:-------|:-------------------------------------------------|
+| `description` | string | Human-readable provider description              |
+| `cdnName`     | string | Name of the CDN service to use for image uploads |
 
 **Methods:**
 
-| Method | Returns | Description |
-| :--- | :--- | :--- |
-| `getAllPosts()` | `Promise<BlogPostListItem[]>` | Get all posts from the platform |
-| `getRecentPosts(filter)` | `Promise<BlogPostListItem[]>` | Get recent posts with optional filtering |
-| `createPost(data)` | `Promise<BlogPost>` | Create a new post on the platform |
-| `updatePost(id, updatedData)` | `Promise<BlogPost>` | Update an existing post by ID |
-| `getPostById(id)` | `Promise<BlogPost>` | Get a specific post by its ID |
+| Method                        | Returns                       | Description                              |
+|:------------------------------|:------------------------------|:-----------------------------------------|
+| `getAllPosts()`               | `Promise<BlogPostListItem[]>` | Get all posts from the platform          |
+| `getRecentPosts(filter)`      | `Promise<BlogPostListItem[]>` | Get recent posts with optional filtering |
+| `createPost(data)`            | `Promise<BlogPost>`           | Create a new post on the platform        |
+| `updatePost(id, updatedData)` | `Promise<BlogPost>`           | Update an existing post by ID            |
+| `getPostById(id)`             | `Promise<BlogPost>`           | Get a specific post by its ID            |
 
 **Note:** The `BlogProvider` interface handles platform-specific operations only.
 State management (current post selection, active provider) is handled by the
@@ -490,27 +491,30 @@ The package uses `BlogState` for state management.
 
 **Properties:**
 
-| Property | Type | Description |
-| :--- | :--- | :--- |
-| `activeProvider` | string or undefined | Currently selected provider |
-| `reviewPatterns` | string[] or undefined | Regex patterns for review |
-| `reviewEscalationTarget` | string or undefined | Escalation target email |
-| `currentPost` | BlogPost or undefined | Currently selected post |
+| Property                 | Type                  | Description                 |
+|:-------------------------|:----------------------|:----------------------------|
+| `activeProvider`         | string or undefined   | Currently selected provider |
+| `reviewPatterns`         | string[] or undefined | Regex patterns for review   |
+| `reviewEscalationTarget` | string or undefined   | Escalation target email     |
+| `currentPost`            | BlogPost or undefined | Currently selected post     |
 
 **Constructor:**
 
 ```typescript
-constructor(initialConfig: z.output<typeof BlogAgentConfigSchema>)
+constructor(initialConfig
+:
+z.output<typeof BlogAgentConfigSchema>
+)
 ```
 
 **Methods:**
 
-| Method | Returns | Description |
-| :--- | :--- | :--- |
-| `serialize()` | JSON object | Serialize state to JSON |
-| `deserialize(data)` | void | Deserialize state from JSON |
-| `transferStateFromParent(parent)` | void | Transfer state from parent |
-| `show()` | string | Show state representation |
+| Method                            | Returns     | Description                 |
+|:----------------------------------|:------------|:----------------------------|
+| `serialize()`                     | JSON object | Serialize state to JSON     |
+| `deserialize(data)`               | void        | Deserialize state from JSON |
+| `transferStateFromParent(parent)` | void        | Transfer state from parent  |
+| `show()`                          | string      | Show state representation   |
 
 ### RPC Endpoints
 
@@ -518,18 +522,18 @@ The package provides JSON-RPC endpoints at `/rpc/blog`.
 
 #### Query Endpoints
 
-| Endpoint | Request Params | Response Params |
-| :--- | :--- | :--- |
-| `getAllPosts` | `provider`, `status?`, `tag?`, `limit?` | `posts`, `count`, `currentlySelected`, `message` |
-| `getPostById` | `provider`, `id` | `post`, `message` |
-| `getBlogState` | `agentId` | `status`, `selectedPostId`, `selectedProvider`, `availableProviders` |
+| Endpoint       | Request Params                          | Response Params                                                      |
+|:---------------|:----------------------------------------|:---------------------------------------------------------------------|
+| `getAllPosts`  | `provider`, `status?`, `tag?`, `limit?` | `posts`, `count`, `currentlySelected`, `message`                     |
+| `getPostById`  | `provider`, `id`                        | `post`, `message`                                                    |
+| `getBlogState` | `agentId`                               | `status`, `selectedPostId`, `selectedProvider`, `availableProviders` |
 
 #### Mutation Endpoints
 
-| Endpoint | Request Params | Response Params |
-| :--- | :--- | :--- |
-| `createPost` | `provider`, `title`, `contentInMarkdown`, `tags?` | `post`, `message` |
-| `updatePost` | `provider`, `id`, `updatedData` | `post`, `message` |
+| Endpoint          | Request Params                                    | Response Params                                                      |
+|:------------------|:--------------------------------------------------|:---------------------------------------------------------------------|
+| `createPost`      | `provider`, `title`, `contentInMarkdown`, `tags?` | `post`, `message`                                                    |
+| `updatePost`      | `provider`, `id`, `updatedData`                   | `post`, `message`                                                    |
 | `updateBlogState` | `agentId`, `selectedPostId?`, `selectedProvider?` | `status`, `selectedPostId`, `selectedProvider`, `availableProviders` |
 
 **Important Notes:**
@@ -556,25 +560,25 @@ z.enum(["draft", "published", "scheduled", "pending", "private"])
 
 #### BlogPostListItem
 
-| Property | Type | Description |
-| :--- | :--- | :--- |
-| `id` | string | Unique identifier |
-| `title` | string | Post title |
-| `status` | BlogPostStatusSchema | Post status |
-| `tags` | string[] \| undefined | Optional post tags |
-| `created_at` | number | Creation date (Unix timestamp in milliseconds) |
-| `updated_at` | number | Last update date (Unix timestamp in milliseconds) |
-| `published_at` | number \| undefined | Optional publication date |
-| `feature_image` | `{ id?: string, url?: string }` \| undefined | Optional featured image |
-| `url` | string \| undefined | Optional post URL |
+| Property        | Type                                         | Description                                       |
+|:----------------|:---------------------------------------------|:--------------------------------------------------|
+| `id`            | string                                       | Unique identifier                                 |
+| `title`         | string                                       | Post title                                        |
+| `status`        | BlogPostStatusSchema                         | Post status                                       |
+| `tags`          | string[] \| undefined                        | Optional post tags                                |
+| `created_at`    | number                                       | Creation date (Unix timestamp in milliseconds)    |
+| `updated_at`    | number                                       | Last update date (Unix timestamp in milliseconds) |
+| `published_at`  | number \| undefined                          | Optional publication date                         |
+| `feature_image` | `{ id?: string, url?: string }` \| undefined | Optional featured image                           |
+| `url`           | string \| undefined                          | Optional post URL                                 |
 
 #### BlogPost
 
 Extends `BlogPostListItem` with:
 
-| Property | Type | Description |
-| :--- | :--- | :--- |
-| `html` | string | Post content in HTML format |
+| Property | Type   | Description                 |
+|:---------|:-------|:----------------------------|
+| `html`   | string | Post content in HTML format |
 
 #### CreatePostData
 
@@ -585,12 +589,12 @@ type CreatePostData = Omit<
 >;
 ```
 
-| Property | Type | Description |
-| :--- | :--- | :--- |
-| `title` | string | Post title |
-| `html` | string | Post content in HTML format |
-| `tags` | string[] \| undefined | Optional tags |
-| `feature_image` | `{ id?: string, url?: string }` \| undefined | Optional featured image |
+| Property        | Type                                         | Description                 |
+|:----------------|:---------------------------------------------|:----------------------------|
+| `title`         | string                                       | Post title                  |
+| `html`          | string                                       | Post content in HTML format |
+| `tags`          | string[] \| undefined                        | Optional tags               |
+| `feature_image` | `{ id?: string, url?: string }` \| undefined | Optional featured image     |
 
 #### UpdatePostData
 
