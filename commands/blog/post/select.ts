@@ -33,7 +33,7 @@ async function execute({ agent }: AgentCommandInputType<typeof inputSchema>): Pr
     const post = await blogService.selectPostById(selection[0], agent);
     return `Selected post: "${post.title}"`;
   } catch (error: unknown) {
-    throw new CommandFailedError(`Error during post selection: ${error instanceof Error ? error.message : String(error)}`);
+    throw new CommandFailedError(`Error during post selection: ${Error.isError(error) ? error.message : String(error)}`);
   }
 }
 

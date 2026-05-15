@@ -3,7 +3,7 @@ import type { AgentCreationContext } from "@tokenring-ai/agent/types";
 import type { TokenRingService } from "@tokenring-ai/app/types";
 import { EscalationService } from "@tokenring-ai/escalation";
 import type { CommunicationChannel } from "@tokenring-ai/escalation/EscalationProvider";
-import deepMerge from "@tokenring-ai/utility/object/deepMerge";
+import deepClone from "@tokenring-ai/utility/object/deepClone";
 import KeyedRegistry from "@tokenring-ai/utility/registry/KeyedRegistry";
 import type { z } from "zod";
 import type { BlogPost, BlogPostFilterOptions, BlogPostListItem, BlogProvider, CreatePostData, UpdatePostData } from "./BlogProvider.ts";
@@ -21,10 +21,11 @@ export default class BlogService implements TokenRingService {
   getBlogProvider = this.providers.get;
   requireBlogProvider = this.providers.require;
 
-  constructor(readonly options: z.output<typeof BlogConfigSchema>) {}
+  constructor(readonly options: z.output<typeof BlogConfigSchema>) {
+  }
 
   attach(agent: Agent, creationContext: AgentCreationContext): void {
-    const agentConfig = deepMerge(this.options.agentDefaults, agent.getAgentConfigSlice("blog", BlogAgentConfigSchema));
+    const agentConfig = deepClone(this.options.agentDefaults, agent.getAgentConfigSlice("blog", BlogAgentConfigSchema));
     const initialState = agent.initializeState(BlogState, agentConfig);
     creationContext.items.push(`Selected blog provider: ${initialState.activeProvider ?? "(none)"}`);
   }
@@ -101,7 +102,7 @@ export default class BlogService implements TokenRingService {
     const state = agent.getState(BlogState);
 
     // Check review patterns
-    if (state.reviewPatterns && state.reviewPatterns.length > 0 && currentPost.html) {
+    if (state.reviewPatterns.length > 0 && currentPost.html) {
       for (const pattern of state.reviewPatterns) {
         const regex = new RegExp(pattern, "i");
         if (regex.test(currentPost.html)) {
@@ -117,7 +118,7 @@ URL: ${currentPost.url || "N/A"}
 To publish this post, please reply with "approve" or "reject".
               `.trim();
 
-              await using channel: CommunicationChannel = await escalationService.initiateContactWithUser(state.reviewEscalationTarget, agent);
+                await using channel: CommunicationChannel = await escalationService.initiateContactWithUser(state.reviewEscalationTarget, agent);
 
               await channel.send(message);
               agent.infoMessage(`Escalation sent to ${state.reviewEscalationTarget}`);

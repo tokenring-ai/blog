@@ -2,12 +2,13 @@ import type { Agent } from "@tokenring-ai/agent";
 import { AgentStateSlice } from "@tokenring-ai/agent/types";
 import { z } from "zod";
 import { type BlogPost, BlogPostSchema } from "../BlogProvider.ts";
+import type { ParsedBlogConfig } from "../schema.ts";
 import type { BlogAgentConfigSchema } from "../schema.ts";
 
 const serializationSchema = z
   .object({
     activeProvider: z.string().optional(),
-    reviewPatterns: z.array(z.string()).optional(),
+    reviewPatterns: z.array(z.string()).default([]),
     reviewEscalationTarget: z.string().optional(),
     currentPost: BlogPostSchema.optional(),
   })
@@ -15,14 +16,14 @@ const serializationSchema = z
 
 export class BlogState extends AgentStateSlice<typeof serializationSchema> {
   activeProvider: string | undefined;
-  reviewPatterns?: string[] | undefined;
+  reviewPatterns: string[];
   reviewEscalationTarget?: string | undefined;
   currentPost: BlogPost | undefined;
 
-  constructor(readonly initialConfig: z.output<typeof BlogAgentConfigSchema>) {
+  constructor(readonly initialConfig: ParsedBlogConfig["agentDefaults"]) {
     super("BlogState", serializationSchema);
     this.activeProvider = initialConfig.provider;
-    this.reviewPatterns = initialConfig.reviewPatterns;
+    this.reviewPatterns = [...initialConfig.reviewPatterns];
     this.reviewEscalationTarget = initialConfig.reviewEscalationTarget;
   }
 

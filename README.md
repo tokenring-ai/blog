@@ -36,7 +36,7 @@ bun add @tokenring-ai/blog
 
 ### Dependencies
 
-- `@tokenring-ai/ai-client` (0.2.0) - AI client for image generation
+- `@tokenring-ai/ai-client` (0.2.0) - AI client for embeddings and chat
 - `@tokenring-ai/app` (0.2.0) - Base application framework
 - `@tokenring-ai/agent` (0.2.0) - Agent orchestration
 - `@tokenring-ai/chat` (0.2.0) - Chat service integration
@@ -44,9 +44,11 @@ bun add @tokenring-ai/blog
 - `@tokenring-ai/rpc` (0.2.0) - JSON-RPC implementation
 - `@tokenring-ai/cdn` (0.2.0) - CDN service for image uploads
 - `@tokenring-ai/scripting` (0.2.0) - Scripting API
+- `@tokenring-ai/escalation` (0.2.0) - Review escalation service
+- `@tokenring-ai/image-generation` (0.2.0) - AI image generation service
 - `zod` (^4.3.6) - Schema validation
 - `marked` (^17.0.6) - Markdown to HTML conversion
-- `uuid` (^13.0.0) - Unique ID generation
+- `uuid` (14.0.0) - Unique ID generation
 
 ---
 
@@ -192,6 +194,7 @@ The plugin is configured using the `BlogConfigSchema`:
 blog:
   agentDefaults:
     provider: wordpress
+    imageModel: dall-e-3
     reviewPatterns:
       - "(?:confidential|proprietary)"
     reviewEscalationTarget: manager@example.com
@@ -214,11 +217,9 @@ blog:
 | Option                   | Type     | Required | Description                                                    |
 |:-------------------------|:---------|:---------|:---------------------------------------------------------------|
 | `provider`               | string   | No       | Default blog provider name to activate on agent initialization |
+| `imageModel`             | string   | No       | Default image model for post image generation                  |
 | `reviewPatterns`         | string[] | No       | Regex patterns to detect sensitive content requiring review    |
 | `reviewEscalationTarget` | string   | No       | Email address for review escalation notifications              |
-
-**Note:** The `imageModel` option is not currently used in the configuration.
-Image model selection is handled by the `ImageGenerationService`.
 
 ### Scripting API
 
@@ -295,6 +296,9 @@ Get all posts from the active provider.
 const posts = await scripting.getAllPosts();
 // Returns: JSON string of posts array
 ```
+
+**Note:** The scripting API expects content in HTML format. For tools and RPC
+endpoints, provide content in Markdown format (automatically converted to HTML).
 
 ### Integration
 
@@ -397,11 +401,10 @@ be registered via `BlogService.registerBlog()` after the service is available.
    state is missing.
 
 7. **Content Format**:
-
-- **Tools**: Provide content in Markdown (automatically converted to HTML)
-- **RPC**: Provide content in Markdown (automatically converted to HTML)
-- **Direct Service Calls**: Provide content in HTML
-- **Scripting API**: Provide content in HTML
+   - **Tools**: Provide content in Markdown (automatically converted to HTML)
+   - **RPC**: Provide content in Markdown (automatically converted to HTML)
+   - **Direct Service Calls**: Provide content in HTML
+   - **Scripting API**: Provide content in HTML
 
 8. **RPC vs Service**: RPC endpoints require an explicit `provider` parameter
    to specify which blog provider to use. Tools and commands use the agent's
